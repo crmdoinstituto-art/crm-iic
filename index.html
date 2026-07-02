@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instituto Inteligência do Coração · Plataforma</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:wght@400;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --verde: #5c2a6e; --verde-light: #7a3d96; --verde-pale: #ede0f5;
+    --areia: #F9F5EF; --text: #1A1A2E; --text-muted: #6B7280;
+    --white: #FFFFFF; --border: #E5E7EB; --accent: #B7410E; --tag-bg: #f3ebfa;
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--areia); color: var(--text); min-height: 100vh; font-size: 14px; }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; min-width: 220px; background: var(--verde); padding: 28px 0; display: flex; flex-direction: column; }
+  .logo { font-family: 'Fraunces', serif; color: white; font-size: 15px; font-weight: 600; padding: 0 24px 32px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 16px; }
+  .logo span { font-size: 11px; font-family: 'Inter', sans-serif; font-weight: 300; display: block; opacity: 0.7; margin-top: 2px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 24px; color: rgba(255,255,255,0.75); cursor: pointer; transition: all 0.15s; font-size: 13px; border-left: 3px solid transparent; }
+  .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+  .nav-item.active { background: rgba(255,255,255,0.12); color: white; border-left-color: #d4a8e8; font-weight: 500; }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .main { flex: 1; overflow-y: auto; }
+  .topbar { background: white; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+  .topbar h1 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; }
+  .topbar-actions { display: flex; gap: 10px; }
+  .btn { padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { background: var(--areia); }
+  .btn-primary { background: var(--verde); color: white; }
+  .btn-primary:hover { background: var(--verde-light); }
+  .content { padding: 24px 28px; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: white; border-radius: 8px; padding: 4px; border: 1px solid var(--border); width: fit-content; }
+  .tab { padding: 7px 18px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text-muted); transition: all 0.15s; }
+  .tab.active { background: var(--verde); color: white; }
+  .tab:hover:not(.active) { background: var(--areia); color: var(--text); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: white; border-radius: 10px; padding: 18px 20px; border: 1px solid var(--border); }
+  .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .stat-value { font-size: 28px; font-family: 'Fraunces', serif; font-weight: 600; color: var(--verde); }
+  .stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .chart-card { background: white; border-radius: 10px; padding: 20px; border: 1px solid var(--border); }
+  .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+  .bar-chart { display: flex; flex-direction: column; gap: 8px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; }
+  .bar-label { font-size: 12px; color: var(--text-muted); width: 90px; text-align: right; flex-shrink: 0; }
+  .bar-track { flex: 1; background: var(--areia); border-radius: 4px; height: 22px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 600; color: white; }
+  .bar-count { font-size: 12px; color: var(--text-muted); width: 30px; }
+  .donut-wrap { display: flex; align-items: center; gap: 16px; justify-content: center; }
+  .donut-legend { display: flex; flex-direction: column; gap: 6px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .search-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
+  .filter-panel { background: white; border-radius: 10px; border: 1px solid var(--border); padding: 20px; height: fit-content; position: sticky; top: 80px; }
+  .filter-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .filter-clear { font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 400; }
+  .filter-section { margin-bottom: 18px; }
+  .filter-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px; }
+  .filter-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filter-tag { padding: 4px 10px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; background: white; color: var(--text-muted); }
+  .filter-tag.selected { background: var(--verde); color: white; border-color: var(--verde); }
+  .filter-tag:hover:not(.selected) { border-color: var(--verde); color: var(--verde); }
+  .filter-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; }
+  .filter-input:focus { border-color: var(--verde); }
+  .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .results-count { font-size: 13px; color: var(--text-muted); }
+  .results-count strong { color: var(--text); }
+  .person-cards { display: flex; flex-direction: column; gap: 12px; }
+  .person-card { background: white; border-radius: 10px; border: 1px solid var(--border); padding: 16px 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: all 0.15s; }
+  .person-card:hover { border-color: var(--verde); box-shadow: 0 2px 12px rgba(92,42,110,0.1); }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; color: white; flex-shrink: 0; font-family: 'Fraunces', serif; }
+  .person-info { flex: 1; }
+  .person-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+  .person-role { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .person-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .ptag { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; background: var(--tag-bg); color: var(--verde-light); }
+  .ptag.blue { background: #EFF6FF; color: #3B82F6; }
+  .ptag.orange { background: #FFF7ED; color: #EA580C; }
+  .ptag.purple { background: #F5F3FF; color: #7C3AED; }
+  .person-meta { text-align: right; }
+  .person-location { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+  .engagement-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 10px; }
+  .engagement-high { background: var(--verde-pale); color: var(--verde); }
+  .engagement-mid { background: #FFF7ED; color: #EA580C; }
+  .active-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .active-filter { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: var(--verde-pale); border-radius: 20px; font-size: 12px; color: var(--verde); font-weight: 500; }
+  .active-filter button { background: none; border: none; cursor: pointer; color: var(--verde); font-size: 14px; line-height: 1; padding: 0; }
+  .upload-area { border: 2px dashed var(--border); border-radius: 12px; padding: 48px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 24px; }
+  .upload-area:hover { border-color: var(--verde); background: var(--tag-bg); }
+  .upload-icon { font-size: 40px; margin-bottom: 12px; }
+  .upload-title { font-weight: 600; margin-bottom: 6px; }
+  .upload-sub { font-size: 13px; color: var(--text-muted); }
+  .source-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .source-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.15s; text-align: center; }
+  .source-card:hover { border-color: var(--verde); }
+  .source-icon { font-size: 28px; margin-bottom: 8px; }
+  .source-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .source-desc { font-size: 11px; color: var(--text-muted); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; display: none; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 14px; padding: 28px; max-width: 520px; width: 90%; max-height: 80vh; overflow-y: auto; }
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+  .modal-name { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; }
+  .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
+  .modal-section { margin-bottom: 16px; }
+  .modal-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px; }
+  .modal-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item { display: flex; gap: 12px; font-size: 13px; }
+  .tl-dot { width: 8px; height: 8px; background: var(--verde); border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+  .tl-year { font-weight: 600; color: var(--verde); }
+</style>
+
+<style>
+/* ===== LOGIN SCREEN ===== */
+#login-screen {
+  position: fixed; inset: 0; z-index: 1000;
+  background: linear-gradient(135deg, #3d1a54 0%, #5c2a6e 50%, #7a3d96 100%);
+  display: flex; align-items: center; justify-content: center;
+}
+#login-screen.hidden { display: none; }
+
+.login-card {
+  background: white; border-radius: 20px; padding: 44px 40px;
+  width: 380px; max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.login-logo {
+  text-align: center; margin-bottom: 28px;
+}
+.login-logo-icon {
+  font-size: 36px; margin-bottom: 8px;
+}
+.login-logo-title {
+  font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600;
+  color: #5c2a6e; line-height: 1.3;
+}
+.login-logo-sub {
+  font-size: 12px; color: #888; margin-top: 4px;
+}
+.login-tabs {
+  display: flex; border-radius: 8px; overflow: hidden;
+  border: 1px solid #e5e7eb; margin-bottom: 24px;
+}
+.login-tab {
+  flex: 1; padding: 9px; text-align: center; font-size: 13px;
+  font-weight: 500; cursor: pointer; color: #6b7280; background: #f9f5ff;
+  transition: all 0.15s;
+}
+.login-tab.active { background: #5c2a6e; color: white; }
+.login-form { display: flex; flex-direction: column; gap: 14px; }
+.login-form.hidden { display: none; }
+.login-label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px; display: block; }
+.login-input {
+  width: 100%; padding: 10px 14px; border: 1px solid #e5e7eb;
+  border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif;
+  outline: none; box-sizing: border-box;
+}
+.login-input:focus { border-color: #5c2a6e; box-shadow: 0 0 0 3px rgba(92,42,110,0.1); }
+.login-btn {
+  width: 100%; padding: 11px; background: #5c2a6e; color: white;
+  border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s;
+  margin-top: 4px;
+}
+.login-btn:hover { background: #7a3d96; }
+.login-error {
+  font-size: 12px; color: #DC2626; text-align: center;
+  background: #fef2f2; border-radius: 6px; padding: 8px;
+  display: none;
+}
+.login-error.show { display: block; }
+.login-switch { font-size: 12px; color: #888; text-align: center; margin-top: 8px; }
+.login-switch a { color: #5c2a6e; cursor: pointer; font-weight: 500; }
+
+/* ===== CERTIFICADO PORTAL ===== */
+#cert-portal {
+  display: none; min-height: 100vh; background: #f9f5ef; font-family: 'Inter', sans-serif;
+}
+#cert-portal.active { display: block; }
+
+.cert-header {
+  background: linear-gradient(135deg, #5c2a6e, #7a3d96);
+  padding: 16px 28px; display: flex; align-items: center; justify-content: space-between;
+}
+.cert-header-left { display: flex; align-items: center; gap: 12px; }
+.cert-header-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700;
+  color: white; font-family: 'Fraunces', serif;
+}
+.cert-header-name { color: white; font-weight: 600; font-size: 15px; }
+.cert-header-sub { color: rgba(255,255,255,0.7); font-size: 12px; }
+.cert-logout { background: rgba(255,255,255,0.15); border: none; color: white;
+  padding: 7px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: 'Inter', sans-serif; }
+.cert-logout:hover { background: rgba(255,255,255,0.25); }
+
+.cert-content { max-width: 860px; margin: 0 auto; padding: 28px 20px; }
+
+.cert-nav { display: flex; gap: 4px; background: white; border-radius: 10px;
+  padding: 4px; border: 1px solid #e5e7eb; margin-bottom: 24px; width: fit-content; }
+.cert-nav-item { padding: 8px 18px; border-radius: 7px; font-size: 13px; font-weight: 500;
+  cursor: pointer; color: #6b7280; transition: all 0.15s; }
+.cert-nav-item.active { background: #5c2a6e; color: white; }
+.cert-nav-item:hover:not(.active) { background: #f3ebfc; color: #5c2a6e; }
+
+.cert-panel { display: none; }
+.cert-panel.active { display: block; }
+
+/* Iniciativas cards for certificado */
+.init-card {
+  background: white; border-radius: 12px; border: 1px solid #e5e7eb;
+  padding: 20px 22px; margin-bottom: 14px; transition: all 0.15s;
+}
+.init-card:hover { border-color: #5c2a6e; box-shadow: 0 2px 12px rgba(92,42,110,0.08); }
+.init-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.init-card-title { font-weight: 700; font-size: 16px; color: #1a1a2e; }
+.init-card-cat { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.init-card-desc { font-size: 13px; color: #6b7280; line-height: 1.6; margin-bottom: 14px; }
+.interest-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: 2px solid #5c2a6e; color: #5c2a6e; background: white;
+  font-family: 'Inter', sans-serif; transition: all 0.15s;
+}
+.interest-btn:hover { background: #5c2a6e; color: white; }
+.interest-btn.marked { background: #5c2a6e; color: white; }
+.interest-btn.marked:hover { background: #7a3d96; }
+
+/* Profile edit form */
+.profile-card { background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 24px; }
+.profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.profile-field { display: flex; flex-direction: column; gap: 6px; }
+.profile-field.full { grid-column: span 2; }
+.profile-field label { font-size: 12px; font-weight: 600; color: #374151; }
+.profile-field input, .profile-field textarea, .profile-field select {
+  padding: 9px 12px; border: 1px solid #e5e7eb; border-radius: 8px;
+  font-size: 13px; font-family: 'Inter', sans-serif; outline: none; resize: vertical;
+}
+.profile-field input:focus, .profile-field textarea:focus { border-color: #5c2a6e; }
+.save-btn {
+  margin-top: 16px; padding: 10px 24px; background: #5c2a6e; color: white;
+  border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+}
+.save-btn:hover { background: #7a3d96; }
+.save-success { display: none; color: #059669; font-size: 13px; font-weight: 500;
+  margin-top: 10px; }
+.save-success.show { display: block; }
+
+/* Admin interest badge */
+.interest-count { display: inline-flex; align-items: center; gap: 4px;
+  background: #ede0f5; color: #5c2a6e; font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 10px; }
+</style>
+
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo">Instituto Inteligência do Coração<span>Plataforma de Conexões</span></div>
+    <nav>
+      <div class="nav-item active" onclick="setNav(this,'dash')"><span class="nav-icon">📊</span> Dashboard</div>
+      <div class="nav-item" onclick="setNav(this,'busca')"><span class="nav-icon">🔍</span> Busca Avançada</div>
+      <div class="nav-item" onclick="setNav(this,'upload')"><span class="nav-icon">📂</span> Dados & Uploads</div>
+      <div class="nav-item" onclick="setNav(this,'iniciativas')"><span class="nav-icon">🌱</span> Iniciativas</div>
+      <div class="nav-item" id="nav-notif" onclick="setNav(this,'notificacoes')"><span class="nav-icon">🔔</span> Interesses <span id="notif-badge" style="background:#ea580c;color:white;border-radius:10px;font-size:10px;padding:1px 6px;margin-left:4px;display:none"></span></div>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <h1 id="page-title">Visão Geral</h1>
+      <div class="topbar-actions">
+        <button class="btn btn-outline">⬇ Exportar</button>
+        <button class="btn btn-primary" onclick="showPanel('upload')">+ Adicionar dados</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="panel-dash" class="panel active">
+        <div class="tabs">
+          <div class="tab active" onclick="setTab(this)">Geral</div>
+          <div class="tab" onclick="setTab(this)">Certificados</div>
+          <div class="tab" onclick="setTab(this)">Eventos</div>
+        </div>
+
+        <!-- STAT CARDS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total de certificados</div>
+            <div class="stat-value">136</div>
+            <div class="stat-sub">Turmas T1 a T9</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Na comunidade IIC</div>
+            <div class="stat-value">88</div>
+            <div class="stat-sub">64,7% do total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Estados representados</div>
+            <div class="stat-value">17</div>
+            <div class="stat-sub">+ presença internacional</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Fora da comunidade</div>
+            <div class="stat-value">48</div>
+            <div class="stat-sub">Potencial de engajamento</div>
+          </div>
+        </div>
+
+        <!-- ROW 1: area + regiao -->
+        <div class="charts-row" style="grid-template-columns:1fr 1fr;margin-bottom:16px">
+          <div class="chart-card">
+            <div class="chart-title">Área de atuação</div>
+            <div class="bar-chart" style="gap:7px">
+              <div class="bar-row"><span class="bar-label" style="width:170px;font-size:11px">Saúde Mental &amp; Terapias</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#5c2a6e">80</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:170px;font-size:11px">Gestão &amp; Negócios</span><div class="bar-track"><div class="bar-fill" style="width:27%;background:#7a3d96">22</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:170px;font-size:11px">Saúde</span><div class="bar-track"><div class="bar-fill" style="width:26%;background:#3B82F6">21</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:170px;font-size:11px">Educação</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:#0891B2">20</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:170px;font-size:11px">Direito</span><div class="bar-track"><div class="bar-fill" style="width:11%;background:#EA580C">9</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:170px;font-size:11px">Tecnologia</span><div class="bar-track"><div class="bar-fill" style="width:9%;background:#D97706">7</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:170px;font-size:11px">Comunicação &amp; Artes</span><div class="bar-track"><div class="bar-fill" style="width:5%;background:#059669">4</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:170px;font-size:11px">Outros</span><div class="bar-track"><div class="bar-fill" style="width:13%;background:#94a3b8">10</div></div></div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-title">Distribuição por região</div>
+            <div class="bar-chart" style="gap:7px">
+              <div class="bar-row"><span class="bar-label">Sudeste</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#5c2a6e">90</div></div></div>
+              <div class="bar-row"><span class="bar-label">Sul</span><div class="bar-track"><div class="bar-fill" style="width:29%;background:#7a3d96">26</div></div></div>
+              <div class="bar-row"><span class="bar-label">Centro-Oeste</span><div class="bar-track"><div class="bar-fill" style="width:9%;background:#9b6dd0">8</div></div></div>
+              <div class="bar-row"><span class="bar-label">Internacional</span><div class="bar-track"><div class="bar-fill" style="width:8%;background:#3B82F6">7</div></div></div>
+              <div class="bar-row"><span class="bar-label">Nordeste</span><div class="bar-track"><div class="bar-fill" style="width:3%;background:#c4b5fd">3</div></div></div>
+              <div class="bar-row"><span class="bar-label">Norte</span><div class="bar-track"><div class="bar-fill" style="width:1%;background:#e9d5ff">1</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 2: turmas + engajamento -->
+        <div class="charts-row" style="grid-template-columns:1fr 1fr">
+          <div class="chart-card">
+            <div class="chart-title">Certificados por turma</div>
+            <div class="bar-chart" style="gap:7px">
+              <div class="bar-row"><span class="bar-label" style="width:40px">T1</span><div class="bar-track"><div class="bar-fill" style="width:37%;background:#5c2a6e">13</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:40px">T2</span><div class="bar-track"><div class="bar-fill" style="width:43%;background:#5c2a6e">15</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:40px">T3</span><div class="bar-track"><div class="bar-fill" style="width:31%;background:#5c2a6e">11</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:40px">T4</span><div class="bar-track"><div class="bar-fill" style="width:14%;background:#5c2a6e">5</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:40px">T5</span><div class="bar-track"><div class="bar-fill" style="width:46%;background:#7a3d96">16</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:40px">T6</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#7a3d96">35</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:40px">T7</span><div class="bar-track"><div class="bar-fill" style="width:54%;background:#9b6dd0">19</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:40px">T8</span><div class="bar-track"><div class="bar-fill" style="width:51%;background:#9b6dd0">18</div></div></div>
+              <div class="bar-row"><span class="bar-label" style="width:40px">T9</span><div class="bar-track"><div class="bar-fill" style="width:11%;background:#c4b5fd">4</div></div></div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-title">Engajamento na comunidade</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--tag-bg);border-radius:8px">
+                <span style="font-size:13px">💜 Na comunidade IIC</span>
+                <span style="font-weight:700;color:var(--verde)">88 pessoas</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#FFF7ED;border-radius:8px">
+                <span style="font-size:13px">⚡ Fora da comunidade</span>
+                <span style="font-weight:700;color:#EA580C">48 pessoas</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--areia);border-radius:8px">
+                <span style="font-size:13px">🌍 Internacionais</span>
+                <span style="font-weight:700;color:var(--text-muted)">7 pessoas</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#F5F3FF;border-radius:8px">
+                <span style="font-size:13px">🎓 Total certificados</span>
+                <span style="font-weight:700;color:#7C3AED">136 pessoas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="panel-busca" class="panel">
+        <div class="search-layout">
+          <div class="filter-panel">
+            <div class="filter-title">Filtros <span class="filter-clear" onclick="clearFilters()">Limpar tudo</span></div>
+            <div class="filter-section">
+              <div class="filter-section-title">🔍 Busca livre</div>
+              <input id="search-text-input" class="filter-input" type="text" placeholder="Nome, área, cidade, profissão..." oninput="applyFilters()">
+            </div>
+            <div class="filter-section">
+              <div class="filter-section-title">📍 Região / País</div>
+              <div class="filter-tags">
+                <span class="filter-tag" onclick="toggleFilter(this,'regiao')">Sudeste</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'regiao')">Sul</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'regiao')">Nordeste</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'regiao')">Centro-Oeste</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'regiao')">Norte</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'regiao')">USA</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'regiao')">Portugal</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'regiao')">Australia</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'regiao')">Canada</span>
+              </div>
+            </div>
+            <div class="filter-section">
+              <div class="filter-section-title">💼 Área de atuação</div>
+              <div class="filter-tags">
+                <span class="filter-tag" onclick="toggleFilter(this,'area')">Saúde Mental &amp; Terapias</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'area')">Saúde</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'area')">Educação</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'area')">Gestão &amp; Negócios</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'area')">Direito</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'area')">Tecnologia</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'area')">Comunicação &amp; Artes</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'area')">Social</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'area')">Outros</span>
+              </div>
+            </div>
+            <div class="filter-section">
+              <div class="filter-section-title">🎓 Turma de certificação</div>
+              <div class="filter-tags">
+                <span class="filter-tag" onclick="toggleFilter(this,'turma')">T1</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'turma')">T2</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'turma')">T3</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'turma')">T4</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'turma')">T5</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'turma')">T6</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'turma')">T7</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'turma')">T8</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'turma')">T9</span>
+              </div>
+            </div>
+            <div class="filter-section">
+              <div class="filter-section-title">⭐ Engajamento</div>
+              <div class="filter-tags">
+                <span class="filter-tag" onclick="toggleFilter(this,'eng')">Muito ativo</span>
+                <span class="filter-tag" onclick="toggleFilter(this,'eng')">Ativo</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="applyFilters()">Buscar</button>
+          </div>
+          <div>
+            <div class="active-filters" id="active-filters-display"></div>
+            <div class="results-header">
+              <div class="results-count">Mostrando <strong id="result-count">136</strong> pessoas</div>
+              <select class="filter-input" style="width:auto;padding:6px 12px">
+                <option>Mais engajadas primeiro</option>
+                <option>Ordem alfabética</option>
+              </select>
+            </div>
+            <div class="person-cards" id="person-cards"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-upload" class="panel">
+        <div class="upload-area">
+          <div class="upload-icon">📁</div>
+          <div class="upload-title">Arraste arquivos ou clique para selecionar</div>
+          <div class="upload-sub">Planilhas Excel, CSV ou PDF · O sistema lê e mapeia automaticamente</div>
+        </div>
+        <div class="chart-card" style="margin-bottom:20px">
+          <div class="chart-title">Conectar fontes de dados</div>
+          <div class="source-cards" style="margin-top:12px">
+            <div class="source-card"><div class="source-icon">📊</div><div class="source-name">Google Sheets</div><div class="source-desc">Sincronização automática</div></div>
+            <div class="source-card"><div class="source-icon">📋</div><div class="source-name">Google Forms</div><div class="source-desc">Novos cadastros automáticos</div></div>
+            <div class="source-card"><div class="source-icon">📝</div><div class="source-name">Typeform</div><div class="source-desc">Formulários avançados</div></div>
+            <div class="source-card"><div class="source-icon">📁</div><div class="source-name">Excel / CSV</div><div class="source-desc">Upload manual</div></div>
+            <div class="source-card"><div class="source-icon">🔗</div><div class="source-name">API externa</div><div class="source-desc">Integração via webhook</div></div>
+            <div class="source-card"><div class="source-icon">✉️</div><div class="source-name">E-mail</div><div class="source-desc">Importar lista de contatos</div></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Histórico de uploads recentes</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--areia);border-radius:8px"><div><div style="font-size:13px;font-weight:500">📊 certificados_2024.xlsx</div><div style="font-size:11px;color:var(--text-muted)">127 registros importados · há 2 dias</div></div><span class="ptag">Concluído</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--areia);border-radius:8px"><div><div style="font-size:13px;font-weight:500">📋 retiro_outubro_2024.csv</div><div style="font-size:11px;color:var(--text-muted)">54 registros · há 1 semana</div></div><span class="ptag">Concluído</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--areia);border-radius:8px"><div><div style="font-size:13px;font-weight:500">📝 workshop_liderança.xlsx</div><div style="font-size:11px;color:var(--text-muted)">89 registros · há 2 semanas</div></div><span class="ptag">Concluído</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INICIATIVAS -->
+      <div id="panel-iniciativas" class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <p style="font-size:13px;color:var(--text-muted);max-width:640px">Iniciativas inspiradas nos <strong>desejos e depoimentos</strong> dos nossos certificados. Use estas ideias como ponto de partida para criar projetos reais de implementação de coerência cardíaca. 💜</p>
+          <button class="btn btn-primary">+ Nova Iniciativa</button>
+        </div>
+
+        <!-- CATEGORIAS -->
+        <div class="tabs" style="margin-bottom:20px">
+          <div class="tab active" onclick="setTab(this)">Todas</div>
+          <div class="tab" onclick="setTab(this)">Saúde</div>
+          <div class="tab" onclick="setTab(this)">Educação</div>
+          <div class="tab" onclick="setTab(this)">Comunidade</div>
+          <div class="tab" onclick="setTab(this)">Corporativo</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+          <!-- 1 -->
+          <div class="chart-card" style="border-left:4px solid #5c2a6e">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+              <div>
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">💜 Ideia · Comunidade</div>
+                <div style="font-weight:700;font-size:16px;margin-bottom:3px">Mães da Periferia</div>
+              </div>
+              <span class="ptag purple">Ideia</span>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6">Levar a coerência cardíaca para mães em situação de vulnerabilidade social, oferecendo ferramentas de autorregulação emocional e resiliência para o dia a dia.</p>
+            <div style="font-size:12px;font-weight:600;color:var(--verde);margin-bottom:6px">Perfil ideal para liderar:</div>
+            <div class="person-tags" style="margin-bottom:14px">
+              <span class="ptag">Saúde Mental &amp; Terapias</span>
+              <span class="ptag">Social</span>
+              <span class="ptag orange">Na comunidade IIC</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);font-style:italic;border-left:3px solid var(--verde-pale);padding-left:10px;margin-bottom:14px">"Quero ajudar as pessoas a se reconectarem com o coração." — certificada T7</div>
+            <button class="btn btn-primary" style="font-size:12px;padding:6px 14px" onclick="showPanel('busca')">🔍 Buscar perfis compatíveis</button>
+          </div>
+
+          <!-- 2 -->
+          <div class="chart-card" style="border-left:4px solid #3B82F6">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+              <div>
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">💙 Ideia · Saúde</div>
+                <div style="font-weight:700;font-size:16px;margin-bottom:3px">Policiais Coerentes</div>
+              </div>
+              <span class="ptag blue">Ideia</span>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6">Programa de coerência cardíaca voltado para policiais e agentes de segurança pública, reduzindo estresse operacional e promovendo tomadas de decisão mais conscientes.</p>
+            <div style="font-size:12px;font-weight:600;color:#3B82F6;margin-bottom:6px">Perfil ideal para liderar:</div>
+            <div class="person-tags" style="margin-bottom:14px">
+              <span class="ptag">Saúde</span>
+              <span class="ptag">Gestão &amp; Negócios</span>
+              <span class="ptag blue">Experiência em grupos</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);font-style:italic;border-left:3px solid #BFDBFE;padding-left:10px;margin-bottom:14px">"Encontro com outros profissionais de saúde para troca de experiências e elaboração de projetos." — Dra. Eliane</div>
+            <button class="btn btn-primary" style="font-size:12px;padding:6px 14px" onclick="showPanel('busca')">🔍 Buscar perfis compatíveis</button>
+          </div>
+
+          <!-- 3 -->
+          <div class="chart-card" style="border-left:4px solid #EA580C">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+              <div>
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">🟠 Ideia · Educação</div>
+                <div style="font-weight:700;font-size:16px;margin-bottom:3px">Coerência nas Escolas</div>
+              </div>
+              <span class="ptag orange">Ideia</span>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6">Capacitar professores e gestores escolares em técnicas de coerência cardíaca para criar ambientes de aprendizagem mais equilibrados e empáticos.</p>
+            <div style="font-size:12px;font-weight:600;color:#EA580C;margin-bottom:6px">Perfil ideal para liderar:</div>
+            <div class="person-tags" style="margin-bottom:14px">
+              <span class="ptag">Educação</span>
+              <span class="ptag orange">Certificada</span>
+              <span class="ptag">Na comunidade IIC</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);font-style:italic;border-left:3px solid #FED7AA;padding-left:10px;margin-bottom:14px">"Esse conteúdo deveria ser ensinado nas escolas, desde a mais tenra idade." — certificada T7</div>
+            <button class="btn btn-primary" style="font-size:12px;padding:6px 14px" onclick="showPanel('busca')">🔍 Buscar perfis compatíveis</button>
+          </div>
+
+          <!-- 4 -->
+          <div class="chart-card" style="border-left:4px solid #059669">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+              <div>
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">💚 Ideia · Saúde</div>
+                <div style="font-weight:700;font-size:16px;margin-bottom:3px">Coração no Hospital</div>
+              </div>
+              <span class="ptag" style="background:#D1FAE5;color:#059669">Ideia</span>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6">Implementar práticas de coerência cardíaca em equipes hospitalares — médicos, enfermeiros e técnicos — para reduzir burnout e melhorar o cuidado ao paciente.</p>
+            <div style="font-size:12px;font-weight:600;color:#059669;margin-bottom:6px">Perfil ideal para liderar:</div>
+            <div class="person-tags" style="margin-bottom:14px">
+              <span class="ptag">Saúde</span>
+              <span class="ptag blue">Experiência hospitalar</span>
+              <span class="ptag orange">Certificada</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);font-style:italic;border-left:3px solid #A7F3D0;padding-left:10px;margin-bottom:14px">"Estou fascinada com esta possibilidade de reunir ciência, coração e coerência." — Dra. Francine</div>
+            <button class="btn btn-primary" style="font-size:12px;padding:6px 14px" onclick="showPanel('busca')">🔍 Buscar perfis compatíveis</button>
+          </div>
+
+          <!-- 5 -->
+          <div class="chart-card" style="border-left:4px solid #D97706">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+              <div>
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">🟡 Ideia · Corporativo</div>
+                <div style="font-weight:700;font-size:16px;margin-bottom:3px">Liderança pelo Coração</div>
+              </div>
+              <span class="ptag" style="background:#FEF3C7;color:#D97706">Ideia</span>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6">Programa de desenvolvimento para líderes empresariais, integrando coerência cardíaca em cultura organizacional, gestão de pessoas e tomada de decisão.</p>
+            <div style="font-size:12px;font-weight:600;color:#D97706;margin-bottom:6px">Perfil ideal para liderar:</div>
+            <div class="person-tags" style="margin-bottom:14px">
+              <span class="ptag">Gestão &amp; Negócios</span>
+              <span class="ptag">Saúde Mental &amp; Terapias</span>
+              <span class="ptag orange">Certificada</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);font-style:italic;border-left:3px solid #FDE68A;padding-left:10px;margin-bottom:14px">"A coerência cardíaca aperfeiçoou a forma como atendo pessoas e organizações." — certificada T7</div>
+            <button class="btn btn-primary" style="font-size:12px;padding:6px 14px" onclick="showPanel('busca')">🔍 Buscar perfis compatíveis</button>
+          </div>
+
+          <!-- 6 -->
+          <div class="chart-card" style="border-left:4px solid #7C3AED">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+              <div>
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">💜 Ideia · Comunidade</div>
+                <div style="font-weight:700;font-size:16px;margin-bottom:3px">Grupo de Supervisão Mentores</div>
+              </div>
+              <span class="ptag purple">Ideia</span>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6">Criar um espaço regular de supervisão e troca entre mentores certificados — encontros mensais para compartilhar casos, dúvidas e fortalecer a prática coletiva.</p>
+            <div style="font-size:12px;font-weight:600;color:#7C3AED;margin-bottom:6px">Perfil ideal para liderar:</div>
+            <div class="person-tags" style="margin-bottom:14px">
+              <span class="ptag">Saúde Mental &amp; Terapias</span>
+              <span class="ptag orange">Na comunidade IIC</span>
+              <span class="ptag blue">T6+</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);font-style:italic;border-left:3px solid #DDD6FE;padding-left:10px;margin-bottom:14px">"A criação de uma comunidade de trocas e de supervisão." — Angela Huf, T7</div>
+            <button class="btn btn-primary" style="font-size:12px;padding:6px 14px" onclick="showPanel('busca')">🔍 Buscar perfis compatíveis</button>
+          </div>
+
+          <!-- 7 -->
+          <div class="chart-card" style="border-left:4px solid #0891B2">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+              <div>
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">🩵 Ideia · Saúde</div>
+                <div style="font-weight:700;font-size:16px;margin-bottom:3px">Coerência no Esporte</div>
+              </div>
+              <span class="ptag" style="background:#E0F2FE;color:#0891B2">Ideia</span>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6">Levar técnicas de coerência cardíaca para atletas e treinadores, melhorando foco, controle emocional e performance esportiva.</p>
+            <div style="font-size:12px;font-weight:600;color:#0891B2;margin-bottom:6px">Perfil ideal para liderar:</div>
+            <div class="person-tags" style="margin-bottom:14px">
+              <span class="ptag">Educação</span>
+              <span class="ptag">Saúde</span>
+              <span class="ptag orange">Certificada</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);font-style:italic;border-left:3px solid #BAE6FD;padding-left:10px;margin-bottom:14px">"Mudou minha maneira de pensar e está ajudando pessoas." — Paulo Andrey, T8</div>
+            <button class="btn btn-primary" style="font-size:12px;padding:6px 14px" onclick="showPanel('busca')">🔍 Buscar perfis compatíveis</button>
+          </div>
+
+          <!-- ADD NEW -->
+          <div class="chart-card" style="border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;min-height:220px;cursor:pointer" onclick="alert('Em breve: criar nova iniciativa!')">
+            <div style="text-align:center;color:var(--text-muted)">
+              <div style="font-size:36px;margin-bottom:10px">+</div>
+              <div style="font-size:14px;font-weight:600;margin-bottom:4px">Criar nova iniciativa</div>
+              <div style="font-size:12px">Baseie-se nos desejos da comunidade</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+</div>
+
+    </div>
+  </main>
+</div>
+
+<!-- NOTIFICAÇÕES PANEL -->
+      <div id="panel-notificacoes" class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div>
+            <h2 style="font-family:'Fraunces',serif;font-size:20px;color:#5c2a6e;margin-bottom:4px">Interesses recebidos</h2>
+            <p style="font-size:13px;color:#6b7280">Certificados que manifestaram interesse em iniciativas. Entre em contato para dar o próximo passo!</p>
+          </div>
+          <button class="btn btn-outline" onclick="clearNotifications()">Limpar histórico</button>
+        </div>
+        <div id="notif-list"></div>
+      </div>
+
+      <!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<!-- CONECTA CHAT BUBBLE -->
+<div id="conecta-bubble" onclick="toggleConecta()" title="Falar com a Conecta">
+  <div class="bubble-avatar">✦</div>
+  <div class="bubble-label">Conecta</div>
+</div>
+
+<!-- CONECTA CHAT WINDOW -->
+<div id="conecta-window">
+  <div class="cw-header">
+    <div class="cw-header-left">
+      <div class="cw-avatar">✦</div>
+      <div>
+        <div class="cw-name">Conecta</div>
+        <div class="cw-sub">Agente IA · Instituto Inteligência do Coração</div>
+      </div>
+    </div>
+    <button class="cw-close" onclick="toggleConecta()">×</button>
+  </div>
+  <div class="cw-messages" id="cw-messages"></div>
+  <div class="cw-suggestions" id="cw-suggestions">
+    <button class="cw-chip" onclick="sendSuggestion(this)">Mentora no Sul com pós em Educação</button>
+    <button class="cw-chip" onclick="sendSuggestion(this)">Profissional de Saúde para pesquisa</button>
+    <button class="cw-chip" onclick="sendSuggestion(this)">Quem participou de retiros e é ativo?</button>
+    <button class="cw-chip" onclick="sendSuggestion(this)">Tecnologia + impacto social</button>
+  </div>
+  <div class="cw-input-row">
+    <input id="cw-input" class="cw-input" type="text" placeholder="Descreva quem você procura..." onkeydown="if(event.key==='Enter')sendMessage()">
+    <button class="cw-send" onclick="sendMessage()">↑</button>
+  </div>
+</div>
+
+<style>
+/* BUBBLE */
+#conecta-bubble {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: linear-gradient(135deg, #5c2a6e, #9b4db8);
+  color: white;
+  border-radius: 50px;
+  padding: 12px 18px 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(92,42,110,0.4);
+  z-index: 200;
+  transition: all 0.2s;
+  user-select: none;
+}
+#conecta-bubble:hover { transform: scale(1.05); box-shadow: 0 6px 28px rgba(92,42,110,0.5); }
+.bubble-avatar { font-size: 20px; animation: pulse-star 2.5s ease-in-out infinite; }
+@keyframes pulse-star { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.75;transform:scale(1.15)} }
+.bubble-label { font-size: 14px; font-weight: 600; letter-spacing: 0.01em; }
+
+/* CHAT WINDOW */
+#conecta-window {
+  position: fixed;
+  bottom: 90px;
+  right: 28px;
+  width: 400px;
+  height: 560px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  z-index: 199;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+#conecta-window.open { display: flex; }
+
+.cw-header {
+  background: linear-gradient(135deg, #5c2a6e, #9b4db8);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cw-header-left { display: flex; align-items: center; gap: 10px; }
+.cw-avatar { font-size: 22px; width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.cw-name { color: white; font-weight: 600; font-size: 14px; }
+.cw-sub { color: rgba(255,255,255,0.7); font-size: 11px; }
+.cw-close { background: none; border: none; color: white; font-size: 20px; cursor: pointer; opacity: 0.7; }
+.cw-close:hover { opacity: 1; }
+
+.cw-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cw-msg { display: flex; gap: 8px; align-items: flex-start; }
+.cw-msg.user { flex-direction: row-reverse; }
+.cw-msg-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg,#5c2a6e,#9b4db8); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; color: white; }
+.cw-msg.user .cw-msg-avatar { background: #E5E7EB; }
+.cw-bubble {
+  max-width: 78%;
+  padding: 10px 13px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.cw-msg:not(.user) .cw-bubble { background: var(--areia); color: var(--text); border-bottom-left-radius: 3px; }
+.cw-msg.user .cw-bubble { background: #5c2a6e; color: white; border-bottom-right-radius: 3px; }
+
+.cw-result-cards { display: flex; flex-direction: column; gap: 7px; margin-top: 8px; }
+.cw-result-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cw-result-card:hover { border-color: #5c2a6e; background: #faf5ff; }
+.cw-mini-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; }
+.cw-mini-name { font-weight: 600; font-size: 12px; }
+.cw-mini-role { font-size: 11px; color: var(--text-muted); }
+.cw-mini-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; }
+.cw-mini-tag { font-size: 10px; padding: 1px 6px; border-radius: 8px; background: var(--tag-bg); color: #7a3d96; }
+
+.typing { display: flex; align-items: center; gap: 4px; padding: 10px 13px; }
+.typing span { width: 7px; height: 7px; background: #aaa; border-radius: 50%; animation: bounce 1.2s infinite; }
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+.cw-suggestions { padding: 0 12px 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.cw-chip { padding: 5px 11px; border-radius: 20px; border: 1px solid #d4a8e8; background: #faf5ff; color: #5c2a6e; font-size: 11px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; }
+.cw-chip:hover { background: #5c2a6e; color: white; border-color: #5c2a6e; }
+
+.cw-input-row { padding: 10px 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; }
+.cw-input { flex: 1; border: 1px solid var(--border); border-radius: 20px; padding: 8px 14px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; }
+.cw-input:focus { border-color: #5c2a6e; }
+.cw-send { width: 34px; height: 34px; border-radius: 50%; background: #5c2a6e; color: white; border: none; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cw-send:hover { background: #7a3d96; }
+</style>
+
+<script>
+const pessoas = [{"nome": "Bruna Murbak, Dra", "iniciais": "BM", "cor": "#5c2a6e", "cargo": "Naturóloga · Botucatu, SP", "profissao": "Naturóloga", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Naturóloga"], "bio": "Naturóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "brumurba@gmail.com", "telefone": "14 99797 6641", "cidade": "Botucatu", "estado": "SP", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "Botucatu, SP"}, {"nome": "Érica Isisdoro Guedes Barbosa", "iniciais": "ÉI", "cor": "#7a3d96", "cargo": "Adm de Empresas, Educadora Física e Terapeuta Integrati · Rio de Janeiro, RJ", "profissao": "Adm de Empresas, Educadora Física e Terapeuta Integrativa / Psicóloga?", "area": ["Saúde Mental & Terapias", "Educação"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Adm de Empresas"], "bio": "Adm de Empresas, Educadora Física e Terapeuta Integrativa / Psicóloga? — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "eigb@hotmail.com", "telefone": "21 99994 1192", "cidade": "Rio de Janeiro", "estado": "RJ", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "Rio de Janeiro, RJ"}, {"nome": "Maria do Carmo Rodrigues Lurial Gomes", "iniciais": "MD", "cor": "#3B82F6", "cargo": "Consultora Pedagógica · Capivari, SP", "profissao": "Consultora Pedagógica", "area": ["Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Consultora Pedagógica"], "bio": "Consultora Pedagógica — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "mclurial49@gmail.com", "telefone": "19 99199 5339", "cidade": "Capivari", "estado": "SP", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "Capivari, SP"}, {"nome": "Cristiana Rabay Zelaquett Quadros", "iniciais": "CR", "cor": "#EA580C", "cargo": "Empresária e Coach · Florianopolis, SC", "profissao": "Empresária e Coach", "area": ["Saúde Mental & Terapias", "Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Empresária e Coach"], "bio": "Empresária e Coach — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "cristiana@cynergya.com.br", "telefone": "48 98800-9110", "cidade": "Florianopolis", "estado": "SC", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "Florianopolis, SC"}, {"nome": "Célia Pedrosa", "iniciais": "CP", "cor": "#0891B2", "cargo": "Pedagoga · Ipatinga, MG", "profissao": "Pedagoga", "area": ["Educação"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Pedagoga"], "bio": "Pedagoga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "pedrosaceliapedrosa@gmail.com", "telefone": "31 99214 5320", "cidade": "Ipatinga", "estado": "MG", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "Ipatinga, MG"}, {"nome": "Alexandra Balardin", "iniciais": "AB", "cor": "#D97706", "cargo": "Professora e Psicoterapeuta · Caxias do Sul, RS", "profissao": "Professora e Psicoterapeuta", "area": ["Saúde Mental & Terapias", "Educação"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Professora e Psicoterapeuta"], "bio": "Professora e Psicoterapeuta — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "kalebalardi@gmail.com", "telefone": "54 99957 9782", "cidade": "Caxias do Sul", "estado": "RS", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "Caxias do Sul, RS"}, {"nome": "Ana Victória Gimenes Vieira", "iniciais": "AV", "cor": "#059669", "cargo": "Enfermeira Obstetra · Botucatu, SP", "profissao": "Enfermeira Obstetra", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Enfermeira Obstetra"], "bio": "Enfermeira Obstetra — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "anavi_gv@hotmail.com", "telefone": "14 99738 9948", "cidade": "Botucatu", "estado": "SP", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "Botucatu, SP"}, {"nome": "Bernardo V. Gimenes", "iniciais": "BV", "cor": "#DC2626", "cargo": "Médico · Ponta Grossa, PR", "profissao": "Médico", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada"], "engajamento": "Ativo", "regiao": "Sul", "tags": ["Médico"], "bio": "Médico — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "bernardo_vg@hotmail.com", "telefone": "14 98139 3388", "cidade": "Ponta Grossa", "estado": "PR", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "Ponta Grossa, PR"}, {"nome": "Ma. Letícia Quaesner da Silva", "iniciais": "ML", "cor": "#7C3AED", "cargo": "Publicitária · Curitiba, PR", "profissao": "Publicitária", "area": ["Outros"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada"], "engajamento": "Ativo", "regiao": "Sul", "tags": ["Publicitária"], "bio": "Publicitária — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "maria@mariamundi.com.br", "telefone": "41 99641 0780", "cidade": "Curitiba", "estado": "PR", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "Curitiba, PR"}, {"nome": "Márcia Elisa Marques Ferraz", "iniciais": "ME", "cor": "#0284C7", "cargo": "Terapeuta · Curitiba, PR", "profissao": "Terapeuta", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Terapeuta"], "bio": "Terapeuta — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "marcia.em.ferraz@gmail.com", "telefone": "41 99191 5730", "cidade": "Curitiba", "estado": "PR", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "Curitiba, PR"}, {"nome": "Tatiane Nicolau Mendes", "iniciais": "TN", "cor": "#5c2a6e", "cargo": "Psicóloga · Goiânia, GO", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Centro-Oeste", "tags": ["Psicóloga"], "bio": "Psicóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "tatinmendes1976@gmail.com", "telefone": "62 98150 2224", "cidade": "Goiânia", "estado": "GO", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "Goiânia, GO"}, {"nome": "Cynthia Provedel", "iniciais": "CP", "cor": "#7a3d96", "cargo": "Consultora Desenvolvimento Organizacional e Comunicação · São Paulo, SP", "profissao": "Consultora Desenvolvimento Organizacional e Comunicação", "area": ["Gestão & Negócios", "Tecnologia", "Comunicação & Artes"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Consultora Desenvolvimento Organiza"], "bio": "Consultora Desenvolvimento Organizacional e Comunicação — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "cyprovedel@hotmail.com", "telefone": "11 99317 3032", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Marcus Serrano", "iniciais": "MS", "cor": "#3B82F6", "cargo": "Empresário · São Paulo, SP", "profissao": "Empresário", "area": ["Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T1", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Empresário"], "bio": "Empresário — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T1", "texto": "Certificação IC — T1"}], "email": "marcus.serrano@rpmdobrasil.com.br", "telefone": "11 94888 9000", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T1", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Patricia Rabelo Gonçalves Costa", "iniciais": "PR", "cor": "#EA580C", "cargo": "Terapeuta Holistica · Belo Horizonte, MG", "profissao": "Terapeuta Holistica", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Terapeuta Holistica"], "bio": "Terapeuta Holistica — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "parbemestar@gmail.com", "telefone": "31 99164 0813", "cidade": "Belo Horizonte", "estado": "MG", "pais": "Brasil", "turma": "T2", "desejo": "", "local_display": "Belo Horizonte, MG"}, {"nome": "Adriana dos Santos", "iniciais": "AD", "cor": "#0891B2", "cargo": "Professora de Meditação, Coach de Saúde e Mentora · Houston, USA", "profissao": "Professora de Meditação, Coach de Saúde e Mentora", "area": ["Saúde Mental & Terapias", "Saúde", "Educação"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "USA", "tags": ["Professora de Meditação"], "bio": "Professora de Meditação, Coach de Saúde e Mentora — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "dricont@hotmail.com", "telefone": "1 713 835 7925", "cidade": "Houston", "estado": "Texas", "pais": "USA", "turma": "T2", "desejo": "", "local_display": "Houston, USA"}, {"nome": "Luana Socorro Chicote Flauzino", "iniciais": "LS", "cor": "#D97706", "cargo": "Terapeuta integrativa e Psicanalista · Campinas, SP", "profissao": "Terapeuta integrativa e Psicanalista", "area": ["Saúde Mental & Terapias", "Tecnologia"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Terapeuta integrativa e Psicanalist"], "bio": "Terapeuta integrativa e Psicanalista — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "luanachicote@gmail.com", "telefone": "19 99952 3682", "cidade": "Campinas", "estado": "SP", "pais": "Brasil", "turma": "T2", "desejo": "", "local_display": "Campinas, SP"}, {"nome": "Henrique Dantas de Santana", "iniciais": "HD", "cor": "#059669", "cargo": "Psicólogo · Brasília, DF", "profissao": "Psicólogo", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada"], "engajamento": "Ativo", "regiao": "Centro-Oeste", "tags": ["Psicólogo"], "bio": "Psicólogo — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "henrique@inteeri.com", "telefone": "48 99661 0624", "cidade": "Brasília", "estado": "DF", "pais": "Brasil", "turma": "T2", "desejo": "", "local_display": "Brasília, DF"}, {"nome": "Marcia Silva De Luca", "iniciais": "MS", "cor": "#DC2626", "cargo": "Professora Yoga, Meditação e Ayurveda · São Paulo, SP", "profissao": "Professora Yoga, Meditação e Ayurveda", "area": ["Educação"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Professora Yoga"], "bio": "Professora Yoga, Meditação e Ayurveda — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "marcia@marciadeluca.com.br", "telefone": "11 98263 4841", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T2", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Heloísa Mendes de Siqueira", "iniciais": "HM", "cor": "#7C3AED", "cargo": "Terapeuta e Coach · São Paulo, SP", "profissao": "Terapeuta e Coach", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Terapeuta e Coach"], "bio": "Terapeuta e Coach — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "contato@helosiqueira.com.br", "telefone": "11 96718 1818", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T2", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Mauricio Santos Maciel", "iniciais": "MS", "cor": "#0284C7", "cargo": "Mentor Reiki · Rio de Janeiro, RJ", "profissao": "Mentor Reiki", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Mentor Reiki"], "bio": "Mentor Reiki — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "", "telefone": "21 97602 1850", "cidade": "Rio de Janeiro", "estado": "RJ", "pais": "Brasil", "turma": "T2", "desejo": "", "local_display": "Rio de Janeiro, RJ"}, {"nome": "Ana Cecília Alves de Castro", "iniciais": "AC", "cor": "#5c2a6e", "cargo": "Terapeuta · Brasília, DF", "profissao": "Terapeuta", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada"], "engajamento": "Ativo", "regiao": "Centro-Oeste", "tags": ["Terapeuta"], "bio": "Terapeuta — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "", "telefone": "61 99983 0830", "cidade": "Brasília", "estado": "DF", "pais": "Brasil", "turma": "T2", "desejo": "", "local_display": "Brasília, DF"}, {"nome": "Tatiana Girardi", "iniciais": "TG", "cor": "#7a3d96", "cargo": "Terapeuta Holistica e Mentora de Vida · Curitiba, PR", "profissao": "Terapeuta Holistica e Mentora de Vida", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada"], "engajamento": "Ativo", "regiao": "Sul", "tags": ["Terapeuta Holistica e Mentora de Vi"], "bio": "Terapeuta Holistica e Mentora de Vida — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "tatiana@espacodobemestar.com", "telefone": "41 99244 2312", "cidade": "Curitiba", "estado": "PR", "pais": "Brasil", "turma": "T2", "desejo": "", "local_display": "Curitiba, PR"}, {"nome": "Tatiana Da Luz", "iniciais": "TD", "cor": "#3B82F6", "cargo": "Psicóloga e Terapeuta · Portland, USA", "profissao": "Psicóloga e Terapeuta", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "USA", "tags": ["Psicóloga e Terapeuta"], "bio": "Psicóloga e Terapeuta — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "tatiluzpsico@gmail.com", "telefone": "1 971 408 6142", "cidade": "Portland", "estado": "Oregon", "pais": "USA", "turma": "T2", "desejo": "", "local_display": "Portland, USA"}, {"nome": "Karina Correa Torres", "iniciais": "KC", "cor": "#EA580C", "cargo": "Astróloga e Assessora Financeira · Guarulhos, SP", "profissao": "Astróloga e Assessora Financeira", "area": ["Outros"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Astróloga e Assessora Financeira"], "bio": "Astróloga e Assessora Financeira — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "karinatorresastrologa@gmail.com", "telefone": "11 96200 7743", "cidade": "Guarulhos", "estado": "SP", "pais": "Brasil", "turma": "T2", "desejo": "", "local_display": "Guarulhos, SP"}, {"nome": "Roberta Holanda de Souza", "iniciais": "RH", "cor": "#0891B2", "cargo": "Cuidadora e Professora de Jiu Jitsu · Sydney, Australia", "profissao": "Cuidadora e Professora de Jiu Jitsu", "area": ["Educação"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada"], "engajamento": "Ativo", "regiao": "Australia", "tags": ["Cuidadora e Professora de Jiu Jitsu"], "bio": "Cuidadora e Professora de Jiu Jitsu — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "robertaholanda1980@gmail.com", "telefone": "61 426 176 695", "cidade": "Sydney", "estado": "NSW", "pais": "Australia", "turma": "T2", "desejo": "", "local_display": "Sydney, Australia"}, {"nome": "Karla Cristina Martins", "iniciais": "KC", "cor": "#D97706", "cargo": "Psicóloga · Brasília, DF", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Centro-Oeste", "tags": ["Psicóloga"], "bio": "Psicóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "karlacrism@yahoo.com.br", "telefone": "61 98484 8682", "cidade": "Brasília", "estado": "DF", "pais": "Brasil", "turma": "T2", "desejo": "", "local_display": "Brasília, DF"}, {"nome": "Maria Helena Orlando", "iniciais": "MH", "cor": "#059669", "cargo": "Terapeuta Corporal · São Paulo, SP", "profissao": "Terapeuta Corporal", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta Corporal"], "bio": "Terapeuta Corporal — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "lenaorlando@lwmail.com.br", "telefone": "11 99159 2486", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T2", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Fernando Kouyoumdjian Fernandes", "iniciais": "FK", "cor": "#DC2626", "cargo": "Hipnoterapeuta · Mairiporã, SP", "profissao": "Hipnoterapeuta", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T2", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Hipnoterapeuta"], "bio": "Hipnoterapeuta — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T2", "texto": "Certificação IC — T2"}], "email": "fernandofkfv@icloud.com", "telefone": "11 99490 5132", "cidade": "Mairiporã", "estado": "SP", "pais": "Brasil", "turma": "T2", "desejo": "", "local_display": "Mairiporã, SP"}, {"nome": "Beatriz André", "iniciais": "BA", "cor": "#7C3AED", "cargo": "Psicóloga · São Paulo, SP", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T3", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Psicóloga"], "bio": "Psicóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T3", "texto": "Certificação IC — T3"}], "email": "beaandre9@gmail.com", "telefone": "11 95558 4001", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T3", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Camila de Souza Godoi", "iniciais": "CD", "cor": "#0284C7", "cargo": "Psicóloga Terapeuta · Águas de Lindóia, SP", "profissao": "Psicóloga Terapeuta", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T3", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Psicóloga Terapeuta"], "bio": "Psicóloga Terapeuta — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T3", "texto": "Certificação IC — T3"}], "email": "camillagodoi_@hotmail.com", "telefone": "19 99151 0221", "cidade": "Águas de Lindóia", "estado": "SP", "pais": "Brasil", "turma": "T3", "desejo": "", "local_display": "Águas de Lindóia, SP"}, {"nome": "Glauce Rejane Leonardi Bertazzi, Dra", "iniciais": "GR", "cor": "#5c2a6e", "cargo": "Médica · São José do Rio Preto, SP", "profissao": "Médica", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T3", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Médica"], "bio": "Médica — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T3", "texto": "Certificação IC — T3"}], "email": "glbertazzi@uol.com.br", "telefone": "17 99601 1989", "cidade": "São José do Rio Preto", "estado": "SP", "pais": "Brasil", "turma": "T3", "desejo": "", "local_display": "São José do Rio Preto, SP"}, {"nome": "Jean Barcelos Sima", "iniciais": "JB", "cor": "#7a3d96", "cargo": "Psicólogo · Cariacica, ES", "profissao": "Psicólogo", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T3", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Psicólogo"], "bio": "Psicólogo — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T3", "texto": "Certificação IC — T3"}], "email": "jeanconsultor.barc@gmail.com", "telefone": "27 99792 5171", "cidade": "Cariacica", "estado": "ES", "pais": "Brasil", "turma": "T3", "desejo": "", "local_display": "Cariacica, ES"}, {"nome": "Lissia Maria de Souza Dias", "iniciais": "LM", "cor": "#3B82F6", "cargo": "Fisioterapeuta e Terapeuta Integrativa · São Luís, MA", "profissao": "Fisioterapeuta e Terapeuta Integrativa", "area": ["Saúde Mental & Terapias", "Saúde"], "formacao": "Certificada IC", "historico": ["Turma T3", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Nordeste", "tags": ["Fisioterapeuta e Terapeuta Integrat"], "bio": "Fisioterapeuta e Terapeuta Integrativa — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T3", "texto": "Certificação IC — T3"}], "email": "lissiadias@yahoo.com.br", "telefone": "98 99603 9610", "cidade": "São Luís", "estado": "MA", "pais": "Brasil", "turma": "T3", "desejo": "", "local_display": "São Luís, MA"}, {"nome": "Marcella Puglia", "iniciais": "MP", "cor": "#EA580C", "cargo": "Mentora e Coach · São Paulo, SP", "profissao": "Mentora e Coach", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T3", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Mentora e Coach"], "bio": "Mentora e Coach — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T3", "texto": "Certificação IC — T3"}], "email": "marcella.sp17@gmail.com", "telefone": "11 99107 3444", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T3", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Vanessa Lourenço Osório Fábriga", "iniciais": "VL", "cor": "#0891B2", "cargo": "Terapeuta Integrativa · São José do Rio Preto, SP", "profissao": "Terapeuta Integrativa", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T3", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta Integrativa"], "bio": "Terapeuta Integrativa — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T3", "texto": "Certificação IC — T3"}], "email": "vanessa.l.osorio@gmail.com", "telefone": "17 99162 2215", "cidade": "São José do Rio Preto", "estado": "SP", "pais": "Brasil", "turma": "T3", "desejo": "", "local_display": "São José do Rio Preto, SP"}, {"nome": "Carla Souza Castro", "iniciais": "CS", "cor": "#D97706", "cargo": "Mentora Sistêmica, Terapeuta com Cavalos, Assistente Mi · Campinas, SP", "profissao": "Mentora Sistêmica, Terapeuta com Cavalos, Assistente Ministério Público, Escritora", "area": ["Saúde Mental & Terapias", "Direito"], "formacao": "Certificada IC", "historico": ["Turma T3", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Mentora Sistêmica"], "bio": "Mentora Sistêmica, Terapeuta com Cavalos, Assistente Ministério Público, Escritora — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T3", "texto": "Certificação IC — T3"}], "email": "carlasouzacastro@gmail.com", "telefone": "19 98365 5959", "cidade": "Campinas", "estado": "SP", "pais": "Brasil", "turma": "T3", "desejo": "", "local_display": "Campinas, SP"}, {"nome": "Alzira MC Ribeiro", "iniciais": "AM", "cor": "#059669", "cargo": "Publicitária, Mentora, Agente de Talentos · Widermere, USA", "profissao": "Publicitária, Mentora, Agente de Talentos", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T3", "Certificada"], "engajamento": "Ativo", "regiao": "USA", "tags": ["Publicitária"], "bio": "Publicitária, Mentora, Agente de Talentos — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T3", "texto": "Certificação IC — T3"}], "email": "alziraribeirousa@gmail.com", "telefone": "1 407 848-6742", "cidade": "Widermere", "estado": "FL", "pais": "USA", "turma": "T3", "desejo": "", "local_display": "Widermere, USA"}, {"nome": "Liliane Fuzikava", "iniciais": "LF", "cor": "#DC2626", "cargo": "Coach · São Paulo, SP", "profissao": "Coach", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T3", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Coach"], "bio": "Coach — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T3", "texto": "Certificação IC — T3"}], "email": "liliane.fuzikava@gmail.com", "telefone": "11 99732 8991", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T3", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Adriana Palermo", "iniciais": "AP", "cor": "#7C3AED", "cargo": "Empresária e Empreendedora de Talentos · São Paulo, SP", "profissao": "Empresária e Empreendedora de Talentos", "area": ["Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T4", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Empresária e Empreendedora de Talen"], "bio": "Empresária e Empreendedora de Talentos — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T4", "texto": "Certificação IC — T4"}], "email": "adriana@newdog.com.br", "telefone": "11 98208 7548", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T4", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Carlos Frederico Magalhães Cerqueira", "iniciais": "CF", "cor": "#0284C7", "cargo": "Zootecnista · Uberlândia, MG", "profissao": "Zootecnista", "area": ["Outros"], "formacao": "Certificada IC", "historico": ["Turma T4", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Zootecnista"], "bio": "Zootecnista — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T4", "texto": "Certificação IC — T4"}], "email": "cfmc_go@hotmail.com", "telefone": "34 99939 1310", "cidade": "Uberlândia", "estado": "MG", "pais": "Brasil", "turma": "T4", "desejo": "", "local_display": "Uberlândia, MG"}, {"nome": "Alexandre Cumino", "iniciais": "AC", "cor": "#5c2a6e", "cargo": "Cientista da Religião · São Paulo, SP", "profissao": "Cientista da Religião", "area": ["Pesquisa"], "formacao": "Certificada IC", "historico": ["Turma T4", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Cientista da Religião"], "bio": "Cientista da Religião — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T4", "texto": "Certificação IC — T4"}], "email": "", "telefone": "11 95340-9133", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T4", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Lilia Sabença de Oliveira", "iniciais": "LS", "cor": "#7a3d96", "cargo": "Professora · São Paulo, SP", "profissao": "Professora", "area": ["Educação"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Professora"], "bio": "Professora — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "lilia.sabenca@gmail.com", "telefone": "11 97606 9252", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Sandra Milani Civolani", "iniciais": "SM", "cor": "#3B82F6", "cargo": "Educadora Física · Indaiatuba, SP", "profissao": "Educadora Física", "area": ["Educação"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Educadora Física"], "bio": "Educadora Física — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "smc.civolani@gmail.com", "telefone": "19 99659 5500", "cidade": "Indaiatuba", "estado": "SP", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "Indaiatuba, SP"}, {"nome": "Aline R. Blanco Guimarães", "iniciais": "AR", "cor": "#EA580C", "cargo": "Especialista em Desenvolvimento Humano · Rio de Janeiro, RJ", "profissao": "Especialista em Desenvolvimento Humano", "area": ["Gestão & Negócios", "Tecnologia"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Especialista em Desenvolvimento Hum"], "bio": "Especialista em Desenvolvimento Humano — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "alineblanco.guima@gmail.com", "telefone": "21 99996 2803", "cidade": "Rio de Janeiro", "estado": "RJ", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "Rio de Janeiro, RJ"}, {"nome": "Janine Ribeiro de Assunção", "iniciais": "JR", "cor": "#0891B2", "cargo": "Advogada · São Borja, RS", "profissao": "Advogada", "area": ["Direito"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Advogada"], "bio": "Advogada — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "janinerdea@gmail.com", "telefone": "55 98438 4114", "cidade": "São Borja", "estado": "RS", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "São Borja, RS"}, {"nome": "Carolina Mello", "iniciais": "CM", "cor": "#D97706", "cargo": "Psicóloga · São Paulo, SP", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Psicóloga"], "bio": "Psicóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "Carolmello81@icloud.com", "telefone": "12 99792 0301", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Andréia Pereira Tomaz", "iniciais": "AP", "cor": "#059669", "cargo": "Terapeuta e Psicanalista · São Paulo, SP", "profissao": "Terapeuta e Psicanalista", "area": ["Saúde Mental & Terapias", "Tecnologia"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta e Psicanalista"], "bio": "Terapeuta e Psicanalista — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "andreiaptomaz@hotmail.com", "telefone": "11 98644 2251", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Michela da Rocha Iop", "iniciais": "MD", "cor": "#DC2626", "cargo": "Psicóloga · Rio do Sul, SC", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Psicóloga"], "bio": "Psicóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "michelaiop@yahoo.com.br", "telefone": "47 99981 7831", "cidade": "Rio do Sul", "estado": "SC", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "Rio do Sul, SC"}, {"nome": "Maria Hercilia Cabral da Ponte de Siervi", "iniciais": "MH", "cor": "#7C3AED", "cargo": "Psicóloga · Rio de Janeiro, RJ", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T4", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Psicóloga"], "bio": "Psicóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T4", "texto": "Certificação IC — T4"}], "email": "hercilia@siervi.com.br", "telefone": "24 99911 5560", "cidade": "Rio de Janeiro", "estado": "RJ", "pais": "Brasil", "turma": "T4", "desejo": "", "local_display": "Rio de Janeiro, RJ"}, {"nome": "Luciana Milanesi Callegaro", "iniciais": "LM", "cor": "#0284C7", "cargo": "Psicanalista e Instrutora de Equitação · Primavera do Leste, MT", "profissao": "Psicanalista e Instrutora de Equitação", "area": ["Saúde Mental & Terapias", "Educação", "Tecnologia"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada"], "engajamento": "Ativo", "regiao": "Centro-Oeste", "tags": ["Psicanalista e Instrutora de Equita"], "bio": "Psicanalista e Instrutora de Equitação — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "lucallegaro@yahoo.com.br", "telefone": "66 99660 6826", "cidade": "Primavera do Leste", "estado": "MT", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "Primavera do Leste, MT"}, {"nome": "Helena Pinheiro", "iniciais": "HP", "cor": "#5c2a6e", "cargo": "Educadora · Brasília, DF", "profissao": "Educadora", "area": ["Educação"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Centro-Oeste", "tags": ["Educadora"], "bio": "Educadora — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "helenapinheiro27@gmail.com", "telefone": "61 99942 8166", "cidade": "Brasília", "estado": "DF", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "Brasília, DF"}, {"nome": "Adriana Veríssimo", "iniciais": "AV", "cor": "#7a3d96", "cargo": "Médica Veterinária · Alegrete, RS", "profissao": "Médica Veterinária", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T4", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Médica Veterinária"], "bio": "Médica Veterinária — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T4", "texto": "Certificação IC — T4"}], "email": "avetverissimo@gmail.com", "telefone": "55 99974 1285", "cidade": "Alegrete", "estado": "RS", "pais": "Brasil", "turma": "T4", "desejo": "", "local_display": "Alegrete, RS"}, {"nome": "Alexandre Rabboni", "iniciais": "AR", "cor": "#3B82F6", "cargo": "Dentista · São Paulo, SP", "profissao": "Dentista", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Dentista"], "bio": "Gostei muito da maneira como a metodologia HeartMath devolve ao coração seu lugar de destaque no nosso desenvolvimento humano e certamente o diferencial é a proposta de assumirmos nosso caminho ativamente.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "alexrabboni@icloud.com", "telefone": "11 99993 6074", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Ana Silvia Dusilek. (enfermagem)", "iniciais": "AS", "cor": "#EA580C", "cargo": "Terapeuta · São Paulo, SP", "profissao": "Terapeuta", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta"], "bio": "Terapeuta — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "anasdusilek@gmail.com", "telefone": "11 98921 8066", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Fátima Gil", "iniciais": "FG", "cor": "#0891B2", "cargo": "Terapeuta Vibracional e Coach / Enfermeira · São Caetano do Sul, SP", "profissao": "Terapeuta Vibracional e Coach / Enfermeira", "area": ["Saúde Mental & Terapias", "Saúde"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta Vibracional e Coach"], "bio": "Terapeuta Vibracional e Coach / Enfermeira — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "gilffa@hotmail.com", "telefone": "11 99950 6278", "cidade": "São Caetano do Sul", "estado": "SP", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "São Caetano do Sul, SP"}, {"nome": "Andrea Sitya Aragones", "iniciais": "AS", "cor": "#D97706", "cargo": "Psicóloga · Nova Hamburgo, RS", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sul", "tags": ["Psicóloga"], "bio": "Psicóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "andrea.aragones@gmail.com", "telefone": "51 99842 0235", "cidade": "Nova Hamburgo", "estado": "RS", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Nova Hamburgo, RS"}, {"nome": "Eliane de Holanda Silva", "iniciais": "ED", "cor": "#059669", "cargo": "Psicóloga · Recife, PE", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Nordeste", "tags": ["Psicóloga"], "bio": "Psicóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "elianeholanda16@hotmail.com", "telefone": "81 99946 1834", "cidade": "Recife", "estado": "PE", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Recife, PE"}, {"nome": "Flavia Linhares Brotto", "iniciais": "FL", "cor": "#DC2626", "cargo": "Terapeuta e Mentora · Vitória, ES", "profissao": "Terapeuta e Mentora", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Terapeuta e Mentora"], "bio": "Terapeuta e Mentora — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "brottoflavia@gmail.com", "telefone": "27 99883 3787", "cidade": "Vitória", "estado": "ES", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Vitória, ES"}, {"nome": "Vítor de Assis Lorentz", "iniciais": "VD", "cor": "#7C3AED", "cargo": "Fisioterapeuta Quiroprático · Vila Velha, ES", "profissao": "Fisioterapeuta Quiroprático", "area": ["Saúde Mental & Terapias", "Saúde"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Fisioterapeuta Quiroprático"], "bio": "Fisioterapeuta Quiroprático — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "valorentz2@yahoo.com.br", "telefone": "27 98811 9379", "cidade": "Vila Velha", "estado": "ES", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Vila Velha, ES"}, {"nome": "Silvia Alexandra de Albuquerque Ferreira", "iniciais": "SA", "cor": "#0284C7", "cargo": "Psicóloga · Fátima, Portugal", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Portugal", "tags": ["Psicóloga"], "bio": "Psicóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "psisilviaferreira@gmail.com", "telefone": "=+351 911 118 162", "cidade": "Fátima", "estado": "Ourém", "pais": "Portugal", "turma": "T6", "desejo": "", "local_display": "Fátima, Portugal"}, {"nome": "Cristiane Esteves", "iniciais": "CE", "cor": "#5c2a6e", "cargo": "Terapeuta, Porfessora Yoga, Aprendiz · Curitiba, PR", "profissao": "Terapeuta, Porfessora Yoga, Aprendiz", "area": ["Saúde Mental & Terapias", "Educação"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sul", "tags": ["Terapeuta"], "bio": "Terapeuta, Porfessora Yoga, Aprendiz — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "cristianeestevesyoga@gmail.com", "telefone": "41 99987 4010", "cidade": "Curitiba", "estado": "PR", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Curitiba, PR"}, {"nome": "Denise Soares Schor", "iniciais": "DS", "cor": "#7a3d96", "cargo": "Terapeuta Integrativa · São Paulo, SP", "profissao": "Terapeuta Integrativa", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Terapeuta Integrativa"], "bio": "Terapeuta Integrativa — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "deschor@gmail.com", "telefone": "21 99022 8482", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Carlos A Rufatto", "iniciais": "CA", "cor": "#3B82F6", "cargo": "Empresário · Bauru, SP", "profissao": "Empresário", "area": ["Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Empresário"], "bio": "Empresário — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "ca2rufatto@gmail.com", "telefone": "14 99107 2429", "cidade": "Bauru", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Bauru, SP"}, {"nome": "Christina Mikalkenas", "iniciais": "CM", "cor": "#EA580C", "cargo": "Psicóloga · Santana de Parnaíba, SP", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Psicóloga"], "bio": "Psicóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "mitsilili@yahoo.com.br", "telefone": "11 98266 6677", "cidade": "Santana de Parnaíba", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Santana de Parnaíba, SP"}, {"nome": "Edineide Oliveira", "iniciais": "EO", "cor": "#0891B2", "cargo": "Enfermeira · Indaiatuba, SP", "profissao": "Enfermeira", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Enfermeira"], "bio": "Enfermeira — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "oliveirasedineide@gmail.com", "telefone": "19 99179 8570", "cidade": "Indaiatuba", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Indaiatuba, SP"}, {"nome": "Liliana Moreira", "iniciais": "LM", "cor": "#D97706", "cargo": "Terapeuta Integrativa Medicina Tradicional Chinesa, Bio · Marinhais, Portugal", "profissao": "Terapeuta Integrativa Medicina Tradicional Chinesa, Biofisica e Florais de Bach", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Portugal", "tags": ["Terapeuta Integrativa Medicina Trad"], "bio": "Terapeuta Integrativa Medicina Tradicional Chinesa, Biofisica e Florais de Bach — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "lilimjm@gmail.com", "telefone": "351 960 462 999", "cidade": "Marinhais", "estado": "Santarém", "pais": "Portugal", "turma": "T6", "desejo": "", "local_display": "Marinhais, Portugal"}, {"nome": "Amanda de Andrade Fontes Zanotto Freitas", "iniciais": "AD", "cor": "#059669", "cargo": "Advogada · Vitória, ES", "profissao": "Advogada", "area": ["Direito"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Advogada"], "bio": "Advogada — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "amanda@brasitalia.com.br", "telefone": "27 99960 4483", "cidade": "Vitória", "estado": "ES", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Vitória, ES"}, {"nome": "Gustavo Henrique Nogueira Cobra", "iniciais": "GH", "cor": "#DC2626", "cargo": "Consultor de Treinamentos · Pindamonhangaba, SP", "profissao": "Consultor de Treinamentos", "area": ["Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Consultor de Treinamentos"], "bio": "Consultor de Treinamentos — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "gustavohcobra@gmail.com", "telefone": "11 98199 6805", "cidade": "Pindamonhangaba", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Pindamonhangaba, SP"}, {"nome": "Ana Carolina Fragoso Pizza", "iniciais": "AC", "cor": "#7C3AED", "cargo": "Terapeuta Integrativa · Valinhos, SP", "profissao": "Terapeuta Integrativa", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Terapeuta Integrativa"], "bio": "Terapeuta Integrativa — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "carolfragoso@yahoo.com.br", "telefone": "19 99752 0915", "cidade": "Valinhos", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Valinhos, SP"}, {"nome": "Ana Carolina Machado Teixeira Pascoal, Dra", "iniciais": "AC", "cor": "#0284C7", "cargo": "Médica · Petrópolis, RJ", "profissao": "Médica", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Médica"], "bio": "Médica — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "carolinapascoal@outlook.com", "telefone": "21 99943 9888", "cidade": "Petrópolis", "estado": "RJ", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Petrópolis, RJ"}, {"nome": "Arquelau (Archie) So", "iniciais": "AA", "cor": "#5c2a6e", "cargo": "Advogado e Empresário · São Paulo, SP", "profissao": "Advogado e Empresário", "area": ["Gestão & Negócios", "Direito"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Advogado e Empresário"], "bio": "Advogado e Empresário — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "arquelau.so@gmail.com", "telefone": "11 98488 8568", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Juliana Miragaia", "iniciais": "JM", "cor": "#7a3d96", "cargo": "Psicóloga e Empresária · Santana de Parnaíba, SP", "profissao": "Psicóloga e Empresária", "area": ["Saúde Mental & Terapias", "Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Psicóloga e Empresária"], "bio": "Psicóloga e Empresária — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "julianamiragaia2@gmail.com", "telefone": "11 99619 2323", "cidade": "Santana de Parnaíba", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Santana de Parnaíba, SP"}, {"nome": "Carla Miranda", "iniciais": "CM", "cor": "#3B82F6", "cargo": "Professora de Yoga · Rio de Janeiro, RJ", "profissao": "Professora de Yoga", "area": ["Educação"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Professora de Yoga"], "bio": "Professora de Yoga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "carlaedh@gmail.com", "telefone": "21 98268 0320", "cidade": "Rio de Janeiro", "estado": "RJ", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Rio de Janeiro, RJ"}, {"nome": "Fábio Martins de Andrade", "iniciais": "FM", "cor": "#EA580C", "cargo": "Advogado e Terapeuta Holistico · São Paulo, SP", "profissao": "Advogado e Terapeuta Holistico", "area": ["Saúde Mental & Terapias", "Direito"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Advogado e Terapeuta Holistico"], "bio": "Advogado e Terapeuta Holistico — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "fandrade@andrade.adv.br", "telefone": "21 99604 8982", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Anna Paula Telles Vieland", "iniciais": "AP", "cor": "#0891B2", "cargo": "Terapeuta · São Paulo, SP", "profissao": "Terapeuta", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta"], "bio": "Terapeuta — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "annicatelles@gmail.com", "telefone": "11 97601 6137", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Thais do Lago Correa", "iniciais": "TD", "cor": "#D97706", "cargo": "Advogada e Terapeuta Bioenergética · São Paulo, SP", "profissao": "Advogada e Terapeuta Bioenergética", "area": ["Saúde Mental & Terapias", "Direito"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Advogada e Terapeuta Bioenergética"], "bio": "Advogada e Terapeuta Bioenergética — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "thais.lago@gmail.com", "telefone": "11 94770 9714", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Vivian Estrela Brasil", "iniciais": "VE", "cor": "#059669", "cargo": "Fonoaudióloga e Empresária · Porto Alegre, RS", "profissao": "Fonoaudióloga e Empresária", "area": ["Gestão & Negócios", "Comunicação & Artes"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sul", "tags": ["Fonoaudióloga e Empresária"], "bio": "Fonoaudióloga e Empresária — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "vivianestrelabrasil@gmail.com", "telefone": "51 99184 6136", "cidade": "Porto Alegre", "estado": "RS", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Porto Alegre, RS"}, {"nome": "Daniela Túcilio Siviero", "iniciais": "DT", "cor": "#DC2626", "cargo": "Fisioterapeuta, Terapeuta do sono e Educadora parental · São Paulo, SP", "profissao": "Fisioterapeuta, Terapeuta do sono e Educadora parental", "area": ["Saúde Mental & Terapias", "Saúde", "Educação"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Fisioterapeuta"], "bio": "Fisioterapeuta, Terapeuta do sono e Educadora parental — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "mentoradanielatucilio@gmail.com", "telefone": "11 94363 0458", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Alexandre Gracioso", "iniciais": "AG", "cor": "#7C3AED", "cargo": "Professor · São Paulo, SP", "profissao": "Professor", "area": ["Educação"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Professor"], "bio": "Professor — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "agracioso@gmail.com", "telefone": "11 94323 6625", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Tuly B A Rocha", "iniciais": "TB", "cor": "#0284C7", "cargo": "Psicóloga · Herval D'Oeste, SC", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Psicóloga"], "bio": "Psicóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "tuly.ba.rocha@gmail.com", "telefone": "49 99193 6872", "cidade": "Herval D'Oeste", "estado": "SC", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Herval D'Oeste, SC"}, {"nome": "Karla Tucci", "iniciais": "KT", "cor": "#5c2a6e", "cargo": "Especialista em Diagnóstico de riscos invisíveis para g · Campo Grande, MS", "profissao": "Especialista em Diagnóstico de riscos invisíveis para grandes patrimônios", "area": ["Outros"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Centro-Oeste", "tags": ["Especialista em Diagnóstico de risc"], "bio": "Especialista em Diagnóstico de riscos invisíveis para grandes patrimônios — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "tuccikarla@hotmail.com", "telefone": "21 99577 5955", "cidade": "Campo Grande", "estado": "MS", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Campo Grande, MS"}, {"nome": "Tatiana Rocha Fernandes, Dra", "iniciais": "TR", "cor": "#7a3d96", "cargo": "Médica · Rio de Janeiro, RJ", "profissao": "Médica", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Médica"], "bio": "Médica — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "tatirnandes@yahoo.com.br", "telefone": "11 95321 8672", "cidade": "Rio de Janeiro", "estado": "RJ", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Rio de Janeiro, RJ"}, {"nome": "Angela Huf", "iniciais": "AH", "cor": "#3B82F6", "cargo": "Mentora de Lideranças, Educadora Social, e Aconselhador · Timbó, SC", "profissao": "Mentora de Lideranças, Educadora Social, e Aconselhadora Biográfica", "area": ["Saúde Mental & Terapias", "Educação", "Social"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Mentora de Lideranças"], "bio": "Este treinamento se diferencia por nos trazer, com fundamentação científica, meios de, consistentemente, nos autorregular e, partir deste estado, somarmos esforços para ajudar as pessoas a alinharem seus sistema físico, mental e emocional com a orientação intuitiva do coração. Isso envolve viver de ", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "angelahuf47@gmail.com", "telefone": "47 99949 9453", "cidade": "Timbó", "estado": "SC", "pais": "Brasil", "turma": "T7", "desejo": "A criação de uma comunidade de trocas e de supervisão.", "local_display": "Timbó, SC"}, {"nome": "Camilla Herreros", "iniciais": "CH", "cor": "#EA580C", "cargo": "Terapeuta Vibracional e Psicanalista · São Paulo, SP", "profissao": "Terapeuta Vibracional e Psicanalista", "area": ["Saúde Mental & Terapias", "Tecnologia"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta Vibracional e Psicanalist"], "bio": "Finalizar a formação como Mentora do Heartmath é uma grande alegria pra mim. Desde que conheci essa ferramenta de autorregulação, meu coração se expandiu e senti a força que temos dentro de nós. Quero agradecer profundamente a Juliana e a Marcia pela organização, pelo carinho, pelo acolhimento e tan", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "herreroscamilla@gmail.com", "telefone": "11 99261 5256", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T7", "desejo": "Manter o canal aberto com vocês através do grupo de whatsapp para dúvidas , informações, atualizações. Talvez criar um encontro mensal para trocas, aprendizados e ideias ao longo do processo.", "local_display": "São Paulo, SP"}, {"nome": "Roberto Debski", "iniciais": "RD", "cor": "#0891B2", "cargo": "Médico e Psicólogo · Santos, SP", "profissao": "Médico e Psicólogo", "area": ["Saúde Mental & Terapias", "Saúde"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Médico e Psicólogo"], "bio": "O treinamento correspondeu às minhas expectativas, abarcando teoria e prática do instituto HeartMath, descortinando o universo da coerência cardíaca e da ciência do coração, suas utilizações práticas na busca de saúde e qualidade de vida. Recomendo a todos que buscam aprender e praticar uma vida mai", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "rodebski@gmail.com", "telefone": "13 99785 6927", "cidade": "Santos", "estado": "SP", "pais": "Brasil", "turma": "T7", "desejo": "Manter a interação em grupo, oferecer novas formações e aperfeiçoamentos, fornecer pesquisas e estudos, ampliar o acesso aos equipamentos HeartMath.", "local_display": "Santos, SP"}, {"nome": "Isabel Cristina Ramos de Oliveira", "iniciais": "IC", "cor": "#D97706", "cargo": "Administradora · São Paulo, SP", "profissao": "Administradora", "area": ["Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Administradora"], "bio": "E numa esquina da vida cruzei com os saberes do coração (tendo o Heartmath por guia). Não aquele do amor romantico preconizado, mas sim, sobre o que realmente importa e nos faz compreender e acolher os mistérios, pois talvez a vida não seja sobre tornar-se, mas antes, sobre retirar as camadas introj", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "isabelramosoliveira@gmail.com", "telefone": "11 99496 0816", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "Adoraria manter contato e ter acesso a novos estudos, cases, etc.", "local_display": "São Paulo, SP"}, {"nome": "Fúlvia Regina Paulo", "iniciais": "FR", "cor": "#059669", "cargo": "Terapeuta · Campinas, SP", "profissao": "Terapeuta", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta"], "bio": "Que privilégio ser uma mentora HeartMath e ajudar as pessoas a se reconectarem com o coração ❤️", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "fulviamaria.paulo@gmail.com", "telefone": "19 99312 7926", "cidade": "Campinas", "estado": "SP", "pais": "Brasil", "turma": "T7", "desejo": "Mantento grupo de estudos ou projetos, ainda quero aprender mais sobre o coração ❤️", "local_display": "Campinas, SP"}, {"nome": "Talma Borges Silva", "iniciais": "TB", "cor": "#DC2626", "cargo": "Terapeuta · Niteroi, RJ", "profissao": "Terapeuta", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta"], "bio": "O treinamento superou as minhas expectativas. Os resultados são extraordinários. Termino esse treinamento muito entusiasmada para colocar em prática todo esse conhecimento.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "talmaborges@yahoo.com.br", "telefone": "21 98149 3000", "cidade": "Niteroi", "estado": "RJ", "pais": "Brasil", "turma": "T6", "desejo": "Mantendo a motivação do grupo, dando suporte aos mentores quando tiverem dúvidas. Trazendo o grupo atualizado.", "local_display": "Niteroi, RJ"}, {"nome": "Viviane da Costa Bouçós", "iniciais": "VD", "cor": "#7C3AED", "cargo": "Terapeuta · Rio de Janeiro, RJ", "profissao": "Terapeuta", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta"], "bio": "Foi uma jornada de reconexão comigo mesma e com minhas emoções. A coerência cardíaca não é só uma técnica... é um caminho de volta pra dentro, pra uma escuta mais profunda e uma presença mais consciente no dia a dia. Me sinto mais alinhada, mais centrada, e com ferramentas reais pra atravessar a vid", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "vivianeboucos@gmail.com", "telefone": "21 97415 6267", "cidade": "Rio de Janeiro", "estado": "RJ", "pais": "Brasil", "turma": "T6", "desejo": "Acho que seria legal continuar tendo troca de participantes, grupos de acompanhamento, ou até encontros mensais curtos para compartilhar dúvidas, vivências e fortalecer a prática.", "local_display": "Rio de Janeiro, RJ"}, {"nome": "Francine Guerra da Cruz, Dra", "iniciais": "FG", "cor": "#0284C7", "cargo": "Médica Cardiologista e Antroposófica · Belo Horizonte, MG", "profissao": "Médica Cardiologista e Antroposófica", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Médica Cardiologista e Antroposófic"], "bio": "Antes do curso de mentoria chegar até a mim, já era um desejo do meu coração fazê-lo porque já tinha sido paciente e passado pelas sessões de coerência cardíaca. Então...chegou! Sou cardiologista e estudo o coração há mais de 30 anos. A emoção de fazer a mentoria e estudar esse outro lado é simplesm", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "francineguerra2024@hotmail.com", "telefone": "31 99128 5520", "cidade": "Belo Horizonte", "estado": "MG", "pais": "Brasil", "turma": "T7", "desejo": "Continuar na plataforma com as novidades e tentar passar o máximo de informações em português. Continuar com o apoio da Juliana Sé e Marcia Ferraz que se mostraram entusiasmadas em nos dar esse curso ", "local_display": "Belo Horizonte, MG"}, {"nome": "Eliane Roseli Barreira, Dra", "iniciais": "ER", "cor": "#5c2a6e", "cargo": "Médica · São Paulo, SP", "profissao": "Médica", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Médica"], "bio": "A certificação me trouxe mais do que eu esperava. Muito além de uma oportunidade de crescimento profissional, mostrou-se uma ferramenta valiosa no meu cuidado pessoal, no meu auto conhecimento e na lapidação das minhas relações pessoais e sociais", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "erbarreira@hotmail.com", "telefone": "11 97592 3049", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T7", "desejo": "Encontro com outros profissionais de saúde para troca de experiências e elaboração de projetos", "local_display": "São Paulo, SP"}, {"nome": "Francine Macedo Abbud", "iniciais": "FM", "cor": "#7a3d96", "cargo": "Empresária e Terapeuta Holistica · São Paulo, SP", "profissao": "Empresária e Terapeuta Holistica", "area": ["Saúde Mental & Terapias", "Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Empresária e Terapeuta Holistica"], "bio": "Empresária e Terapeuta Holistica — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "franabbud@gmail.com", "telefone": "11 98934 4086", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T7", "desejo": "Tento um espaço para tirarmos duvidas no decorrer desse ano onde iremos firmar mais os conceitos e treinar mais também.", "local_display": "São Paulo, SP"}, {"nome": "Heloísa Monteiro de Moura Esteves", "iniciais": "HM", "cor": "#3B82F6", "cargo": "Terapeuta Transpessoal · Belo Horizonte, MG", "profissao": "Terapeuta Transpessoal", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta Transpessoal"], "bio": "Fazer o treinamento para obter a certificação de mentoria foi um divisor de águas na minha caminhada. Sinto que me abriu um portal para buscar ser alguém melhor, em sintonia com o meu coração e para atuar junto a outras pessoas, facilitando-lhes o acesso a tão rica metodologia e sua utilização no di", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "heloisa.monteiro35@gmail.com", "telefone": "31 99981 8084", "cidade": "Belo Horizonte", "estado": "MG", "pais": "Brasil", "turma": "T7", "desejo": "Supervisão nos momentos de impasses na condução de mentoria.", "local_display": "Belo Horizonte, MG"}, {"nome": "Patricia Antonini Silva", "iniciais": "PA", "cor": "#EA580C", "cargo": "Fisioterapeuta · Divinópolis, MG", "profissao": "Fisioterapeuta", "area": ["Saúde Mental & Terapias", "Saúde"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Fisioterapeuta"], "bio": "Fazer a certificação para ser um Mentor do Instituto HeartMath não foi para mim apenas um curso,com o aprendizado de técnicas,teoria,foi mais do que isso. Ao concluir a certificação percebi mudanças a nivel fisico e emocional Estou no começo dessa nova estrada e sei que as mudanças ainda serão mais ", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "patriciaantoninisilva@gmail.com", "telefone": "37 99112 9727", "cidade": "Divinópolis", "estado": "MG", "pais": "Brasil", "turma": "T7", "desejo": "Auxiliando nas dúvidas que possam surgir", "local_display": "Divinópolis, MG"}, {"nome": "Silmara Faria Rojo Merino", "iniciais": "SF", "cor": "#0891B2", "cargo": "Terapeuta · Araras, SP", "profissao": "Terapeuta", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta"], "bio": "Terapeuta — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "silmarafmerino@gmail.com", "telefone": "19 99785 6933", "cidade": "Araras", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Araras, SP"}, {"nome": "Marcele Karasinski", "iniciais": "MK", "cor": "#D97706", "cargo": "Psicóloga · Curitiba, PR", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Psicóloga"], "bio": "Estava em dúvida se faria a certificação por conta de um conflito de agenda mas segui meu coração e me inscrevi com a disciplina de assistir 50% das aulas que não poderia estar. O conteúdo disponibilizado, os materiais e a plataforma de acesso foram ótimos. Tudo muito organizado! A condução dos enco", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "marcelekara@gmail.com", "telefone": "41 99673 6831", "cidade": "Curitiba", "estado": "PR", "pais": "Brasil", "turma": "T7", "desejo": "Ainda tenho algumas dúvidas sobre a prática da comunicação por exemplo, vou assistir as aulas de novo e seguir estudando e gostaria de poder tirar minhas dúvidas quando surgirem.", "local_display": "Curitiba, PR"}, {"nome": "Regina Pocay", "iniciais": "RP", "cor": "#059669", "cargo": "Terapeuta Integrativa · Nova Odessa, SP", "profissao": "Terapeuta Integrativa", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta Integrativa"], "bio": "Terapeuta Integrativa — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "repocay@icloud.com", "telefone": "19 98781 1108", "cidade": "Nova Odessa", "estado": "SP", "pais": "Brasil", "turma": "T7", "desejo": "Acredito que pelo grupo de WhatsApp, como já acontece, é um canal interessante para o suporte", "local_display": "Nova Odessa, SP"}, {"nome": "Christiane Monteiro Spíndola Marins", "iniciais": "CM", "cor": "#DC2626", "cargo": "Economista/ mentora · Cotia, SP", "profissao": "Economista/ mentora", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Economista"], "bio": "Esse conhecimento transforma a vida 😘💓🌈🌈", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "chrismsmarins@gmail.com", "telefone": "21 99801 7488", "cidade": "Cotia", "estado": "SP", "pais": "Brasil", "turma": "T7", "desejo": "Grupo de prática", "local_display": "Cotia, SP"}, {"nome": "Marcio Loréga Azeredo Barbosa", "iniciais": "ML", "cor": "#7C3AED", "cargo": "Analista de Investimentos · Cotia, SP", "profissao": "Analista de Investimentos", "area": ["Tecnologia"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Analista de Investimentos"], "bio": "Experiência maravilhosa que recomendo a todos! Voltar a ouvir o som do coração !", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "marcio.ceerj@gmail.com", "telefone": "21 99756 2662", "cidade": "Cotia", "estado": "SP", "pais": "Brasil", "turma": "T7", "desejo": "Enviando heart math para mim e minha esposa.🙏", "local_display": "Cotia, SP"}, {"nome": "Guto Petry", "iniciais": "GP", "cor": "#0284C7", "cargo": "Facilitador de autoconhecimento através da natureza · Capela de Santana, RS", "profissao": "Facilitador de autoconhecimento através da natureza", "area": ["Outros"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Facilitador de autoconhecimento atr"], "bio": "O Instituto HeartMath é detentor de, talvez, a mais importante mensagem deste tempo: O CAMINHO DE RETORNO À NOSSA ESSÊNCIA HUMANA. Este legado é construído de maneira sólida e coerente pelo instituto através da HUMANIDADE das pessoas que fazem parte dele. Isso é o que há de maior valor neste trabalh", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "pauloaugustopetry@gmail.com", "telefone": "51 99641 4322", "cidade": "Capela de Santana", "estado": "RS", "pais": "Brasil", "turma": "T5", "desejo": "Eu gostaria de ter a autorização do instituto e, mais que isso, saber se há interesse em que eu divulgue aquilo que aprendi com o Instituto através do trabalho que exerço em processos imersivos com ca", "local_display": "Capela de Santana, RS"}, {"nome": "Bruna R. Minosso Borges", "iniciais": "BR", "cor": "#5c2a6e", "cargo": "Nutricionista · Porto Alegre, RS", "profissao": "Nutricionista", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sul", "tags": ["Nutricionista"], "bio": "Com a certificação eu aprendi que não preciso do externo para o que vibra na minha essência. Percebo o meu coração nos detalhes. Ele sabe de tudo. Na minha profissão, sou nutricionista, a prática vem me auxiliando a cada dia com os meus pacientes a sentirem toda potência que há dentro do seu próprio", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "nutribrunaminosso@hotmail.com", "telefone": "51 99691 2101", "cidade": "Porto Alegre", "estado": "RS", "pais": "Brasil", "turma": "T6", "desejo": "Sinto que ele já existe, sempre que necessário através de mensagens.", "local_display": "Porto Alegre, RS"}, {"nome": "Ruth Villela de Andrade", "iniciais": "RV", "cor": "#7a3d96", "cargo": "Treinadora e Coach com cavalos · Campos do Jordão, SP", "profissao": "Treinadora e Coach com cavalos", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T3", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Treinadora e Coach com cavalos"], "bio": "Treinadora e Coach com cavalos — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T3", "texto": "Certificação IC — T3"}], "email": "coachconsultoriaruth@gmail.com", "telefone": "11 99893 2288", "cidade": "Campos do Jordão", "estado": "SP", "pais": "Brasil", "turma": "T3", "desejo": "", "local_display": "Campos do Jordão, SP"}, {"nome": "Claudia Annunziata Gerk de Queiroz", "iniciais": "CA", "cor": "#3B82F6", "cargo": "Administradora de Empresas · Nova Friburgo, RJ", "profissao": "Administradora de Empresas", "area": ["Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Administradora de Empresas"], "bio": "Esse foi, sem dúvida alguma, o treinamento mais completo e robusto que já fiz. A eficácia das técnicas podem ser sentidas nas primeiras semanas, sem mistérios, sem dificuldades. Tudo com embasamento científico e muita responsabilidade. Esse conteúdo deveria ser ensinado nas escolas, desde a mais ten", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "annunziatagerk@gmail.com", "telefone": "22 99271 3213", "cidade": "Nova Friburgo", "estado": "RJ", "pais": "Brasil", "turma": "T7", "desejo": "Sinto que seria muito importante termos encontros mensais para compartilharmos experiências.", "local_display": "Nova Friburgo, RJ"}, {"nome": "Gisele Cozer Chiesa", "iniciais": "GC", "cor": "#EA580C", "cargo": "Empreendedora · Palhoça, RS", "profissao": "Empreendedora", "area": ["Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Empreendedora"], "bio": "A popular frase \"Escute a voz do seu coração\" ganhou vida nesta formação. Entender biologicamente sua funcionalidade e os impactos na estremecida saúde mental foi elucidativo. Acessar as práticas e perceber alguns avanços nos desafios foi revelador. Há muito o que conhecer sobre nossa fisiologia, so", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "sougichiesa@gamail.com", "telefone": "51 98932 8484", "cidade": "Palhoça", "estado": "RS", "pais": "Brasil", "turma": "T7", "desejo": "Estou em contato constante com a facilitadora Márcia.", "local_display": "Palhoça, RS"}, {"nome": "Patricia Amélia da Silva Graças", "iniciais": "PA", "cor": "#0891B2", "cargo": "Terapeuta · São Paulo, SP", "profissao": "Terapeuta", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Terapeuta"], "bio": "O contato com coração é o caminho para viver bem nesse novo mundo e o curso do HeartMath é a ponte.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "acreditaemedita@gmail.com", "telefone": "11 95050 4225", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T5", "desejo": "Com eventos e mantendo o grupo ativo com notícias e atualizações. Encontros presenciais.", "local_display": "São Paulo, SP"}, {"nome": "Diego Adriano Vieira Trevisan", "iniciais": "DA", "cor": "#D97706", "cargo": "Mentor Conselheiro · Passo Fundo, RS", "profissao": "Mentor Conselheiro", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Mentor Conselheiro"], "bio": "Estou mais coerente, mais leve e mais feliz ! Gratidão", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "portalshasta@gmail.com", "telefone": "49 99826 1000", "cidade": "Passo Fundo", "estado": "RS", "pais": "Brasil", "turma": "T7", "desejo": "Já estou recebendo (mentoria)", "local_display": "Passo Fundo, RS"}, {"nome": "Reginaldo da Silva Cordeiro", "iniciais": "RD", "cor": "#059669", "cargo": "Psicólogo · Teresina, PI", "profissao": "Psicólogo", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Nordeste", "tags": ["Psicólogo"], "bio": "Um curso que nos mostra, de forma simples e ao mesmo tempo bem profunda, a importância, os fundamentos e prática da coerência cardíaca!", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "rsilvacordeiro@outlook.com", "telefone": "86 98815 8668", "cidade": "Teresina", "estado": "PI", "pais": "Brasil", "turma": "T7", "desejo": "Com novos cursos", "local_display": "Teresina, PI"}, {"nome": "Roberta Masini Gabriel", "iniciais": "RM", "cor": "#DC2626", "cargo": "Empresária · São Paulo, SP", "profissao": "Empresária", "area": ["Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Empresária"], "bio": "Eu fiquei extremamente satisfeita em fazer a formação , todo material entregue foi de grande exelencia e organização! Experimentei as tecnicas no decorrer do curso e percebi mudanças visiveis em mim , nas minhas emoções, no meu dia a dia de relações, melhores decisões e um bem estar mais constante. ", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "robertagabriel@gustavorosa.org.br", "telefone": "11 99951 9245", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T7", "desejo": "Estou estudando como incorporar o HeartMath no trabalho que ja faço com os cavalos e com a arte de Gustavo Rosa. E também em outros projetos que estou criando para levar saude para as pessoas. Ter a a", "local_display": "São Paulo, SP"}, {"nome": "Caterine Vasconcelos de Castro", "iniciais": "CV", "cor": "#7C3AED", "cargo": "Advogada, Consteladora, Coach, Terapeuta · Rio Branco, AC", "profissao": "Advogada, Consteladora, Coach, Terapeuta", "area": ["Saúde Mental & Terapias", "Direito"], "formacao": "Certificada IC", "historico": ["Turma T7", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Norte", "tags": ["Advogada"], "bio": "A certificação de mentora Heartmath foi uma virada de chave para compreender de uma forma clara, objetiva, científica e prática como a coerência cardíaca é um estado de autorregulação emocional que traz uma capacidade de compreensão e escolha mais consciente de comportamentos adequados que refletem ", "timeline": [{"ano": "T7", "texto": "Certificação IC — T7"}], "email": "Caterinecastro.coach@gmail.com", "telefone": "68 99229 0007", "cidade": "Rio Branco", "estado": "AC", "pais": "Brasil", "turma": "T7", "desejo": "Divulgando atividades do instituto e mantendo uma rede de partilha.", "local_display": "Rio Branco, AC"}, {"nome": "Fernanda Goncalves", "iniciais": "FG", "cor": "#0284C7", "cargo": "Comissária de bordo · Vancouver, Canada", "profissao": "Comissária de bordo", "area": ["Outros"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Canada", "tags": ["Comissária de bordo"], "bio": "Nós dias de hoje temos tantos cursos, tantas ferramentas. Muito pouco relacionado a como se auto regular no momento, on the go. De forma científica e real as técnicas aprendidas aqui podem ser usadas de olhos abertos por qualquer pessoa em qualquer situação pois todos respiramos. Fenomenal! Como ter", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "fayalabrx@gmail.com", "telefone": "1 604 727 7207", "cidade": "Vancouver", "estado": "BC", "pais": "Canada", "turma": "T6", "desejo": "Fico muito feliz que há a possibilidade de fazer parte da comunidade de mentores do heartmath Brasil.", "local_display": "Vancouver, Canada"}, {"nome": "Mikelle Camargo Malvestite", "iniciais": "MC", "cor": "#5c2a6e", "cargo": "Psicóloga · Campinas, SP", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada"], "engajamento": "Ativo", "regiao": "Sudeste", "tags": ["Psicóloga"], "bio": "Como uma técnica simples e objetiva pode alterar de muitas formas a vida das pessoas, é surpreendente!", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "Mikellec@yahoo.com", "telefone": "19 99912 3352", "cidade": "Campinas", "estado": "SP", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Campinas, SP"}, {"nome": "Aline Jhans, Dr", "iniciais": "AJ", "cor": "#7a3d96", "cargo": "Especialista em Neurosciencia e Comportamento e Phd em  · Brasil", "profissao": "Especialista em Neurosciencia e Comportamento e Phd em Medicina integrativa com ênfase em física quântica", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada"], "engajamento": "Ativo", "regiao": "Outros", "tags": ["Especialista em Neurosciencia e Com"], "bio": "Especialista em Neurosciencia e Comportamento e Phd em Medicina integrativa com ênfase em física quântica — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "alinejahns@gmail.com", "telefone": "12 99704 3521", "cidade": "", "estado": "", "pais": "Brasil", "turma": "T5", "desejo": "", "local_display": "Brasil"}, {"nome": "Ana Paula Santana de Almeida", "iniciais": "AP", "cor": "#3B82F6", "cargo": "Professora · Florianópolis, SC", "profissao": "Professora", "area": ["Educação"], "formacao": "Certificada IC", "historico": ["Turma T5", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Professora"], "bio": "Valeu a pena pelo aprendizado; Conhecimento das técnicas; Interação com o grupo; Uma forma de trabalhar com o outro com práticas descomplicadas; Experiência maravilhosa com a ministrante do curso, Juliana Sé.", "timeline": [{"ano": "T5", "texto": "Certificação IC — T5"}], "email": "apsda37@gmail.com", "telefone": "75 99234 9404", "cidade": "Florianópolis", "estado": "SC", "pais": "Brasil", "turma": "T5", "desejo": "Acredito que esse suporte já existe, através do grupo de wapp onde podemos tirar dúvidas e estar em contato com a ministrante do curso.", "local_display": "Florianópolis, SC"}, {"nome": "Ana Lucia Viçoso da Cruz Almeida", "iniciais": "AL", "cor": "#EA580C", "cargo": "Consultora; Facilitadora de constelações organizacionai · Rio de Janeiro, RJ", "profissao": "Consultora; Facilitadora de constelações organizacionais e familiares;", "area": ["Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Consultora; Facilitadora de constel"], "bio": "Este treinamento veio no momento certo para mim. Achei incrível como as técnicas do HeartMath nos ajudam a ampliar nosso autoconhecimento, identificando as emoções que desgastam e que renovam nossas energias, e como são eficazes para trabalhar nosso equilíbrio e resiliência emocional e acessar a int", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "analuciavicoso@gmail.com", "telefone": "21 99383 0693", "cidade": "Rio de Janeiro", "estado": "RJ", "pais": "Brasil", "turma": "T8", "desejo": "Mantendo um grupo de supervisão para tirar dúvidas que surjam na aplicação e condução das mentorias. Fornecendo cases e dicas de abordagem para aplicação em grupos vulneráveis.", "local_display": "Rio de Janeiro, RJ"}, {"nome": "Elizabeth Mitiko Kobayashi", "iniciais": "EM", "cor": "#0891B2", "cargo": "Membro do Ministério Público Federal · São Paulo, SP", "profissao": "Membro do Ministério Público Federal", "area": ["Direito"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Membro do Ministério Público Federa"], "bio": "Eu adorei participar da certificação. O conteúdo é muito completo e a metodologia é simples e fácil. As instrutoras são excelentes! Durante o curso já fiz muitas práticas e pude observar os excelentes resultados rapidamente. Como sou professora de meditação, já apliquei a técnica nas minhas aulas e ", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "bethmkobayashi@gmail.com", "telefone": "11 99136 4552", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T8", "desejo": "Ter um local onde pudéssemos trocar experiências, tirar dúvidas e nos unirmos para trabalharmos em projetos, seria excelente.", "local_display": "São Paulo, SP"}, {"nome": "Evelyn Paulina Rapp Schmidt", "iniciais": "EP", "cor": "#D97706", "cargo": "Terapeuta Ocupacional · São Paulo, SP", "profissao": "Terapeuta Ocupacional", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta Ocupacional"], "bio": "Terapeuta Ocupacional — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "rapp.evy@gmail.com", "telefone": "11 99430 3939", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T8", "desejo": "Quando tiver dúvidas gostaria de poder entrar em contato por WhatsApp ou chamada para poder esclarecer o que me aflige.", "local_display": "São Paulo, SP"}, {"nome": "Julianna Brugger", "iniciais": "JB", "cor": "#059669", "cargo": "Consultora em Bem-Estar integral · Rio de Janeiro, RJ", "profissao": "Consultora em Bem-Estar integral", "area": ["Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Consultora em Bem-Estar integral"], "bio": "Dar um sim a certificação foi a realização de um objetivo que já habitava minha lista de sonhos há alguns anos. Sou profundamente grata pela oportunidade de participar, aprender e me desenvolver a cada encontro nessa verdadeira ilha de coerência. Na prática, saio da formação me sentindo mais confian", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "juliannabdemello@gmail.com", "telefone": "21 98874 7181", "cidade": "Rio de Janeiro", "estado": "RJ", "pais": "Brasil", "turma": "T8", "desejo": "Abrir oportunidades de estar praticando e conduzindo as tecnicas.", "local_display": "Rio de Janeiro, RJ"}, {"nome": "Alessia Anzaloni", "iniciais": "AA", "cor": "#DC2626", "cargo": "Estilista e Hipnoterapeuta · São Paulo, SP", "profissao": "Estilista e Hipnoterapeuta", "area": ["Saúde Mental & Terapias", "Comunicação & Artes"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Estilista e Hipnoterapeuta"], "bio": "Se todos os seres humanos tiverem acesso as técnicas de coerência do coracao , ninguém mais vai adoecer e certamente teremos um mundo gentil, amoroso e feliz.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "anzalonialessia@gmail.com", "telefone": "11 97374 9951", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T8", "desejo": "Eu gostaria de entender melhor como posso conduzir minha aulas e mentorias em grupo e individuais", "local_display": "São Paulo, SP"}, {"nome": "Claudia Vaciloto", "iniciais": "CV", "cor": "#7C3AED", "cargo": "Psicóloga · São Paulo, SP", "profissao": "Psicóloga", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Psicóloga"], "bio": "Psicóloga — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "claudia.vaciloto@gmail.com", "telefone": "11 99996 9301", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T8", "desejo": "Acredito que fazer parte do grupo de certificados já me deixa feliz pelas trocas compartilhadas", "local_display": "São Paulo, SP"}, {"nome": "Paulo Andrey Prado de Almeida", "iniciais": "PA", "cor": "#0284C7", "cargo": "Técnico de Natação · Curitiba, PR", "profissao": "Técnico de Natação", "area": ["Outros"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Técnico de Natação"], "bio": "Mudou minha maneira de pensar e estar ajudando pessoas é o que mais importa.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "paulo_andrey@yahoo.com.br", "telefone": "41 99602 9702", "cidade": "Curitiba", "estado": "PR", "pais": "Brasil", "turma": "T8", "desejo": "Talvez com apoio nas questões das aplicações no dia a dia", "local_display": "Curitiba, PR"}, {"nome": "Sônia Vianna Duarte, Dra", "iniciais": "SV", "cor": "#5c2a6e", "cargo": "Médica · Belo Horizonte, MG", "profissao": "Médica", "area": ["Saúde"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Médica"], "bio": "O curso é maravilhoso, transformador. A técnica é simples e seu efeito é surpreendente e profundo. É um curso capaz de transformar a vida das pessoas através da integração da mente e coração e do despertar da inteligência do coração. A inteligência do coração nos guia com amor e sabedoria, promovend", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "sviannaduarte@yahoo.com.br", "telefone": "31 99951 0665", "cidade": "Belo Horizonte", "estado": "MG", "pais": "Brasil", "turma": "T8", "desejo": "Gostaria de tomar ciência e se possível participar dos projetos do Hearthmath, colaborando com esse instituto voltado para a cura individual e coletiva.", "local_display": "Belo Horizonte, MG"}, {"nome": "Pedro Afonso Cavalcante Lins", "iniciais": "PA", "cor": "#7a3d96", "cargo": "Servidor Público · Vila Velha, ES", "profissao": "Servidor Público", "area": ["Outros"], "formacao": "Certificada IC", "historico": ["Turma T6", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Servidor Público"], "bio": "Servidor Público — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T6", "texto": "Certificação IC — T6"}], "email": "pa.pedro@gmail.com", "telefone": "27 98828 2304", "cidade": "Vila Velha", "estado": "ES", "pais": "Brasil", "turma": "T6", "desejo": "", "local_display": "Vila Velha, ES"}, {"nome": "Lúcia Helena Ferraz Almeida", "iniciais": "LH", "cor": "#3B82F6", "cargo": "Mentora para Gestão de Empresas e de Pessoas · São Paulo, SP", "profissao": "Mentora para Gestão de Empresas e de Pessoas", "area": ["Saúde Mental & Terapias", "Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Mentora para Gestão de Empresas e d"], "bio": "Mentora para Gestão de Empresas e de Pessoas — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "lhferraz@mtg.net.br", "telefone": "11 97601 7338", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T8", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Marlene Aparecida Demenis Baptistella", "iniciais": "MA", "cor": "#EA580C", "cargo": "Química · Araçatuba, SP", "profissao": "Química", "area": ["Outros"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Química"], "bio": "Química — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "marlene.baptistella@gmail.com", "telefone": "62 99912 3845", "cidade": "Araçatuba", "estado": "SP", "pais": "Brasil", "turma": "T8", "desejo": "", "local_display": "Araçatuba, SP"}, {"nome": "Mônica Bueno Guimarães", "iniciais": "MB", "cor": "#0891B2", "cargo": "Professora · Rio de Janeiro, RJ", "profissao": "Professora", "area": ["Educação"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Professora"], "bio": "Professora — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "lmonicaguimaraes@gmail.com", "telefone": "21 99402 3443", "cidade": "Rio de Janeiro", "estado": "RJ", "pais": "Brasil", "turma": "T8", "desejo": "", "local_display": "Rio de Janeiro, RJ"}, {"nome": "Zaine Aline da Silva Wanderley", "iniciais": "ZA", "cor": "#D97706", "cargo": "Terapeuta integrativa · Rio de Janeiro, RJ", "profissao": "Terapeuta integrativa", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta integrativa"], "bio": "Terapeuta integrativa — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "z.aline.terapeuta@gmail.com", "telefone": "21 99459 9976", "cidade": "Rio de Janeiro", "estado": "RJ", "pais": "Brasil", "turma": "T8", "desejo": "", "local_display": "Rio de Janeiro, RJ"}, {"nome": "Tais Joi Pontes", "iniciais": "TJ", "cor": "#059669", "cargo": "Comunicadora, Terapeuta e professora · Brasilia, DF", "profissao": "Comunicadora, Terapeuta e professora", "area": ["Saúde Mental & Terapias", "Educação", "Comunicação & Artes"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Centro-Oeste", "tags": ["Comunicadora"], "bio": "Comunicadora, Terapeuta e professora — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "Contato@taisjoi.com", "telefone": "61 98183 7063", "cidade": "Brasilia", "estado": "DF", "pais": "Brasil", "turma": "T8", "desejo": "", "local_display": "Brasilia, DF"}, {"nome": "André Ferretti", "iniciais": "AF", "cor": "#DC2626", "cargo": "Empresário · Bento Gonçalves, RS", "profissao": "Empresário", "area": ["Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Empresário"], "bio": "Empresário — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "ferretti.77@gmail.com", "telefone": "54 99668 1376", "cidade": "Bento Gonçalves", "estado": "RS", "pais": "Brasil", "turma": "T8", "desejo": "", "local_display": "Bento Gonçalves, RS"}, {"nome": "Paula Furlanetto", "iniciais": "PF", "cor": "#7C3AED", "cargo": "Adm Empresas · São Paulo, SP", "profissao": "Adm Empresas", "area": ["Outros"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Adm Empresas"], "bio": "Adm Empresas — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "paulafurlanetto@me.com", "telefone": "11 99292 7111", "cidade": "São Paulo", "estado": "SP", "pais": "Brasil", "turma": "T8", "desejo": "", "local_display": "São Paulo, SP"}, {"nome": "Rossy Elaine Rezende", "iniciais": "RE", "cor": "#0284C7", "cargo": "Terapêuta Integrativa Multidimensional/Pedagoga de Emer · Garopaba, SC", "profissao": "Terapêuta Integrativa Multidimensional/Pedagoga de Emergência/Educadora Waldorf", "area": ["Saúde Mental & Terapias", "Educação"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Terapêuta Integrativa Multidimensio"], "bio": "Terapêuta Integrativa Multidimensional/Pedagoga de Emergência/Educadora Waldorf — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "rezenderossy@gmail.com", "telefone": "47 99124 6992", "cidade": "Garopaba", "estado": "SC", "pais": "Brasil", "turma": "T8", "desejo": "", "local_display": "Garopaba, SC"}, {"nome": "Jordana Renz Ottonelli", "iniciais": "JR", "cor": "#5c2a6e", "cargo": "Naturóloga, Terapeuta do coração e da Alma, Canalizador · Palhoça, SC", "profissao": "Naturóloga, Terapeuta do coração e da Alma, Canalizadora dos Registros Akáshicos e Criadora do Movimento Desprogramação da Mulher exausta", "area": ["Saúde Mental & Terapias", "Saúde"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Naturóloga"], "bio": "Naturóloga, Terapeuta do coração e da Alma, Canalizadora dos Registros Akáshicos e Criadora do Movimento Desprogramação da Mulher exausta — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "jordanarenz@yahoo.com.br", "telefone": "48 98460 2766", "cidade": "Palhoça", "estado": "SC", "pais": "Brasil", "turma": "T8", "desejo": "", "local_display": "Palhoça, SC"}, {"nome": "Juliana Storani De Castro Abbá Marson", "iniciais": "JS", "cor": "#7a3d96", "cargo": "Advogada, Mediadora de Conflitos e Consultora de DHO · Jundiaí, SP", "profissao": "Advogada, Mediadora de Conflitos e Consultora de DHO", "area": ["Gestão & Negócios", "Direito"], "formacao": "Certificada IC", "historico": ["Turma T8", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Advogada"], "bio": "Advogada, Mediadora de Conflitos e Consultora de DHO — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T8", "texto": "Certificação IC — T8"}], "email": "justorani@gmail.com", "telefone": "11 99989 4850", "cidade": "Jundiaí", "estado": "SP", "pais": "Brasil", "turma": "T8", "desejo": "", "local_display": "Jundiaí, SP"}, {"nome": "Chris Nirvano (Christianne Carneiro Ignodo)", "iniciais": "CN", "cor": "#3B82F6", "cargo": "Profa. de Yoga e Meditação Mindfulness e Educadora Físi · Florianópolis, SC", "profissao": "Profa. de Yoga e Meditação Mindfulness e Educadora Física", "area": ["Educação"], "formacao": "Certificada IC", "historico": ["Turma T9", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Profa. de Yoga e Meditação Mindfuln"], "bio": "Profa. de Yoga e Meditação Mindfulness e Educadora Física — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T9", "texto": "Certificação IC — T9"}], "email": "chrisnirvano@gmail.com", "telefone": "48 99162 9087", "cidade": "Florianópolis", "estado": "SC", "pais": "Brasil", "turma": "T9", "desejo": "", "local_display": "Florianópolis, SC"}, {"nome": "Juliana Assis de Oliveira", "iniciais": "JA", "cor": "#EA580C", "cargo": "Consultora e Mentora · Jundiaí, SP", "profissao": "Consultora e Mentora", "area": ["Saúde Mental & Terapias", "Gestão & Negócios"], "formacao": "Certificada IC", "historico": ["Turma T9", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Consultora e Mentora"], "bio": "Consultora e Mentora — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T9", "texto": "Certificação IC — T9"}], "email": "tearjuntos@gmail.com", "telefone": "11 94972 4351", "cidade": "Jundiaí", "estado": "SP", "pais": "Brasil", "turma": "T9", "desejo": "", "local_display": "Jundiaí, SP"}, {"nome": "Mirtes de Holanda Santos Lopes", "iniciais": "MD", "cor": "#0891B2", "cargo": "Terapeuta e Bombeira Abordadora Técnica em Tentativas d · Porto Alegre, RS", "profissao": "Terapeuta e Bombeira Abordadora Técnica em Tentativas de Suicídio", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T9", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sul", "tags": ["Terapeuta e Bombeira Abordadora Téc"], "bio": "Terapeuta e Bombeira Abordadora Técnica em Tentativas de Suicídio — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T9", "texto": "Certificação IC — T9"}], "email": "mirteslopes743@gmail.com", "telefone": "51 99543 3556", "cidade": "Porto Alegre", "estado": "RS", "pais": "Brasil", "turma": "T9", "desejo": "", "local_display": "Porto Alegre, RS"}, {"nome": "Antonina Gonçalves Martins", "iniciais": "AG", "cor": "#D97706", "cargo": "Terapeuta integrativa com cavalos · Limeira, SP", "profissao": "Terapeuta integrativa com cavalos", "area": ["Saúde Mental & Terapias"], "formacao": "Certificada IC", "historico": ["Turma T9", "Certificada", "Comunidade IIC"], "engajamento": "Muito ativo", "regiao": "Sudeste", "tags": ["Terapeuta integrativa com cavalos"], "bio": "Terapeuta integrativa com cavalos — certificada pelo Instituto Inteligência do Coração.", "timeline": [{"ano": "T9", "texto": "Certificação IC — T9"}], "email": "agm_antonina@hotmail.com", "telefone": "19 98451 6779", "cidade": "Limeira", "estado": "SP", "pais": "Brasil", "turma": "T9", "desejo": "", "local_display": "Limeira, SP"}];
+
+
+function renderNotifications() {
+  const el = document.getElementById('notif-list');
+  if (!el) return;
+  const notifs = JSON.parse(localStorage.getItem('crm_notifications') || '[]');
+  updateNotifBadge();
+  if (notifs.length === 0) {
+    el.innerHTML = `<div style="text-align:center;padding:48px;color:#aaa">
+      <div style="font-size:40px;margin-bottom:12px">🔔</div>
+      <div style="font-size:14px;font-weight:500;margin-bottom:4px">Nenhum interesse ainda</div>
+      <div style="font-size:13px">Quando certificados marcarem interesse em iniciativas, aparece aqui.</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = notifs.map((n,i) => `
+    <div style="background:white;border-radius:10px;border:1px solid #e5e7eb;padding:16px 20px;margin-bottom:12px;display:flex;gap:16px;align-items:flex-start">
+      <div style="width:42px;height:42px;border-radius:50%;background:#ede0f5;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${n.iniEmoji||'🌱'}</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+          <div>
+            <div style="font-weight:600;font-size:14px">${n.nome}</div>
+            <div style="font-size:12px;color:#6b7280">${n.profissao} · ${n.cidade}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;color:#aaa">${n.ts}</div>
+            <div style="margin-top:4px"><span style="background:#ede0f5;color:#5c2a6e;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px">${n.ini}</span></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          ${n.email ? `<a href="mailto:${n.email}" style="font-size:12px;color:#5c2a6e;text-decoration:none;background:#f3ebfc;padding:4px 10px;border-radius:6px">✉️ ${n.email}</a>` : ''}
+          ${n.tel && n.tel !== 'Não informado' ? `<a href="tel:${n.tel}" style="font-size:12px;color:#5c2a6e;text-decoration:none;background:#f3ebfc;padding:4px 10px;border-radius:6px">📱 ${n.tel}</a>` : ''}
+          ${n.desejo && n.desejo !== 'Não informado' ? `<div style="font-size:12px;color:#555;font-style:italic;margin-top:4px;width:100%">💡 "${n.desejo}"</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateNotifBadge() {
+  const notifs = JSON.parse(localStorage.getItem('crm_notifications') || '[]');
+  const badge = document.getElementById('notif-badge');
+  if (!badge) return;
+  if (notifs.length > 0) {
+    badge.textContent = notifs.length;
+    badge.style.display = 'inline';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function clearNotifications() {
+  if (confirm('Limpar todo o histórico de interesses?')) {
+    localStorage.removeItem('crm_notifications');
+    renderNotifications();
+  }
+}
+
+function renderCards(lista) {
+  const el = document.getElementById('person-cards');
+  document.getElementById('result-count').textContent = lista.length;
+  el.innerHTML = lista.map(p => {
+    const loc = p.local_display || (p.cidade ? p.cidade + (p.estado ? ', '+p.estado : '') : p.regiao);
+    return `
+    <div class="person-card" onclick="openModal(${pessoas.indexOf(p)})">
+      <div class="avatar" style="background:${p.cor}">${p.iniciais}</div>
+      <div class="person-info">
+        <div class="person-name">${p.nome}</div>
+        <div class="person-role">${p.profissao || ''}</div>
+        <div class="person-tags">
+          ${p.area.map(t=>`<span class="ptag">${t}</span>`).join('')}
+          ${p.turma ? `<span class="ptag blue">${p.turma}</span>` : ''}
+        </div>
+      </div>
+      <div class="person-meta">
+        <div class="person-location">📍 ${loc}</div>
+        <span class="engagement-badge ${p.engajamento==='Muito ativo'?'engagement-high':'engagement-mid'}">
+          ${p.engajamento==='Muito ativo'?'💜':'⚡'} ${p.engajamento}
+        </span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let activeFilters = {};
+
+function toggleFilter(el, group) {
+  if (!activeFilters[group]) activeFilters[group] = [];
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    activeFilters[group] = activeFilters[group].filter(f => f !== el.textContent);
+  } else {
+    el.classList.add('selected');
+    activeFilters[group].push(el.textContent);
+  }
+  updateActiveFiltersDisplay();
+  applyFilters();
+}
+
+function updateActiveFiltersDisplay() {
+  const el = document.getElementById('active-filters-display');
+  const all = Object.entries(activeFilters).flatMap(([g,vals])=>vals.map(v=>({g,v})));
+  el.innerHTML = all.map(({g,v})=>`<span class="active-filter">${v} <button onclick="removeFilter('${g}','${v}')">×</button></span>`).join('');
+}
+
+function removeFilter(group, val) {
+  activeFilters[group] = (activeFilters[group]||[]).filter(f=>f!==val);
+  document.querySelectorAll('.filter-tag').forEach(el=>{if(el.textContent===val)el.classList.remove('selected');});
+  updateActiveFiltersDisplay(); applyFilters();
+}
+
+function applyFilters() {
+  let result = pessoas;
+  if (activeFilters.regiao?.length) result = result.filter(p=>activeFilters.regiao.includes(p.regiao));
+  if (activeFilters.area?.length) result = result.filter(p=>activeFilters.area.some(a=>p.area.includes(a)));
+  if (activeFilters.turma?.length) result = result.filter(p=>activeFilters.turma.includes(p.turma));
+  if (activeFilters.eng?.length) result = result.filter(p=>activeFilters.eng.some(e=>p.engajamento===e));
+  const q = document.getElementById('search-text-input')?.value?.toLowerCase().trim();
+  if (q) result = result.filter(p=>
+    p.nome.toLowerCase().includes(q) ||
+    (p.profissao||'').toLowerCase().includes(q) ||
+    p.area.join(' ').toLowerCase().includes(q) ||
+    (p.cidade||'').toLowerCase().includes(q) ||
+    (p.estado||'').toLowerCase().includes(q) ||
+    (p.pais||'').toLowerCase().includes(q) ||
+    (p.bio||'').toLowerCase().includes(q) ||
+    (p.desejo||'').toLowerCase().includes(q)
+  );
+  renderCards(result);
+}
+
+function clearFilters() {
+  activeFilters = {};
+  document.querySelectorAll('.filter-tag.selected').forEach(el=>el.classList.remove('selected'));
+  updateActiveFiltersDisplay(); renderCards(pessoas);
+}
+
+function openModal(idx) {
+  const p = pessoas[idx];
+  const loc = p.local_display || (p.cidade ? p.cidade + (p.estado ? ', '+p.estado : '') : p.regiao);
+  const contatoHtml = (p.email || p.telefone) ? `
+    <div class="modal-section">
+      <div class="modal-section-title">📬 Contato</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        ${p.email ? `<div style="font-size:13px">✉️ <a href="mailto:${p.email}" style="color:var(--verde)">${p.email}</a></div>` : ''}
+        ${p.telefone ? `<div style="font-size:13px">📱 ${p.telefone}</div>` : ''}
+        <div style="font-size:13px">📍 ${loc}</div>
+      </div>
+    </div>` : `<div class="modal-section"><div class="modal-section-title">📍 Localização</div><p style="font-size:13px;color:var(--text-muted)">${loc}</p></div>`;
+  const bioHtml = p.bio && p.bio.length > 20 && !p.bio.includes('certificada pelo Instituto') ? `
+    <div class="modal-section">
+      <div class="modal-section-title">💬 Depoimento</div>
+      <p style="font-size:13px;color:var(--text-muted);font-style:italic;line-height:1.6">"${p.bio}"</p>
+    </div>` : '';
+  const desejoHtml = p.desejo ? `
+    <div class="modal-section">
+      <div class="modal-section-title">🌱 Como quer contribuir</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6">${p.desejo}</p>
+    </div>` : '';
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="avatar" style="background:${p.cor};width:52px;height:52px;font-size:18px">${p.iniciais}</div>
+        <div>
+          <div class="modal-name">${p.nome}</div>
+          <div style="font-size:13px;color:var(--text-muted)">${p.profissao || ''}</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">Perfil</div>
+      <div class="modal-tags">
+        ${p.area.map(a=>`<span class="ptag">${a}</span>`).join('')}
+        <span class="ptag blue">${p.turma}</span>
+        <span class="ptag">${p.regiao}</span>
+        <span class="engagement-badge engagement-high" style="font-size:12px">${p.engajamento==='Muito ativo'?'💜':'⚡'} ${p.engajamento}</span>
+      </div>
+    </div>
+    ${contatoHtml}
+    ${bioHtml}
+    ${desejoHtml}
+    <div style="margin-top:20px;display:flex;gap:8px">
+      ${p.email ? `<a href="mailto:${p.email}" class="btn btn-primary" style="flex:1;text-align:center;text-decoration:none">✉️ Enviar e-mail</a>` : '<button class="btn btn-primary" style="flex:1">✉️ Convidar para projeto</button>'}
+      <button class="btn btn-outline" onclick="closeModal()">Fechar</button>
+    </div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+const panels = ['dash','busca','upload','iniciativas','notificacoes'];
+const titles = {dash:'Visão Geral', busca:'Busca Avançada', upload:'Dados & Uploads', iniciativas:'Iniciativas', notificacoes:'Interesses Recebidos'};
+
+function setNav(el, panel) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  showPanel(panel);
+}
+
+function showPanel(panel) {
+  panels.forEach(p=>document.getElementById('panel-'+p).classList.remove('active'));
+  document.getElementById('panel-'+panel).classList.add('active');
+  document.getElementById('page-title').textContent = titles[panel];
+  document.querySelectorAll('.nav-item').forEach((n,i)=>{
+    if(panels[i]===panel) n.classList.add('active'); else n.classList.remove('active');
+  });
+  if (panel === 'notificacoes') renderNotifications();
+}
+
+function setTab(el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+renderCards(pessoas);
+
+// ============ CONECTA AI AGENT ============
+
+let conectaOpen = false;
+let chatHistory = [];
+let isTyping = false;
+
+function toggleConecta() {
+  conectaOpen = !conectaOpen;
+  const win = document.getElementById('conecta-window');
+  if (conectaOpen) {
+    win.classList.add('open');
+    if (chatHistory.length === 0) showWelcome();
+    document.getElementById('cw-input').focus();
+  } else {
+    win.classList.remove('open');
+  }
+}
+
+function showWelcome() {
+  appendMessage('agent', `Olá! Sou a **Conecta** 💜, sua assistente de busca do Instituto Inteligência do Coração.\n\nMe diga em linguagem natural quem você está procurando — área, região, formação, histórico no Instituto — e vou encontrar os perfis certos para você!`);
+}
+
+function sendSuggestion(el) {
+  document.getElementById('cw-suggestions').style.display = 'none';
+  const text = el.textContent;
+  document.getElementById('cw-input').value = text;
+  sendMessage();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('cw-input');
+  const text = input.value.trim();
+  if (!text || isTyping) return;
+  input.value = '';
+  document.getElementById('cw-suggestions').style.display = 'none';
+
+  appendMessage('user', text);
+  chatHistory.push({ role: 'user', content: text });
+
+  showTyping();
+  isTyping = true;
+
+  try {
+    const pessoasCtx = JSON.stringify(pessoas.map(p => ({
+      nome: p.nome, profissao: p.profissao, area: p.area,
+      engajamento: p.engajamento, regiao: p.regiao,
+      cidade: p.cidade, estado: p.estado, pais: p.pais,
+      turma: p.turma, bio: p.bio, desejo: p.desejo
+    })));
+
+    const systemPrompt = `Você é a Conecta, agente de IA do Instituto Inteligência do Coração. Sua função é ajudar a encontrar pessoas no banco de dados do Instituto com base em pedidos em linguagem natural.
+
+BANCO DE DADOS ATUAL:
+${pessoasCtx}
+
+INSTRUÇÕES:
+- Interprete pedidos em linguagem natural e encontre perfis compatíveis.
+- Quando encontrar pessoas, responda com uma análise curta e amigável, depois liste os perfis no formato JSON especial abaixo.
+- Se não encontrar ninguém compatível, explique por que e sugira critérios alternativos.
+- Seja calorosa, objetiva e use no máximo 2 parágrafos de texto antes dos resultados.
+- Se a pergunta for genérica ou de conversa, responda normalmente sem buscar perfis.
+
+FORMATO DE RESPOSTA COM PERFIS:
+Quando encontrar perfis, inclua ao final exatamente este bloco (não coloque nada depois):
+<RESULTADOS>{"nomes":["Nome1","Nome2"]}</RESULTADOS>
+
+Se não for uma busca de perfis, não inclua o bloco RESULTADOS.`;
+
+    // Check for Gemini API key
+    let geminiKey = sessionStorage.getItem('gemini_api_key') || '';
+    if (!geminiKey) {
+      hideTyping(); isTyping = false;
+      chatHistory.pop(); // remove user msg we just added
+      showKeyPrompt(text);
+      return;
+    }
+
+    // Build Gemini contents from history
+    const geminiContents = chatHistory.map(msg => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }]
+    }));
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: geminiContents,
+          generationConfig: { maxOutputTokens: 1000, temperature: 0.7 }
+        })
+      }
+    );
+
+    const data = await response.json();
+    if (data.error) {
+      if (data.error.code === 400 || data.error.code === 403) {
+        sessionStorage.removeItem('gemini_api_key');
+        hideTyping(); isTyping = false;
+        appendMessage('agent', 'Chave de API inválida. Por favor insira novamente.');
+        showKeyPrompt();
+        return;
+      }
+      throw new Error(data.error.message);
+    }
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Desculpe, não consegui processar sua busca.';
+
+    chatHistory.push({ role: 'assistant', content: raw });
+
+    hideTyping();
+    isTyping = false;
+
+    // Parse resultados
+    const match = raw.match(/<RESULTADOS>(.*?)<\/RESULTADOS>/s);
+    const cleanText = raw.replace(/<RESULTADOS>.*?<\/RESULTADOS>/s, '').trim();
+
+    appendMessage('agent', cleanText);
+
+    if (match) {
+      try {
+        const { nomes } = JSON.parse(match[1]);
+        const encontrados = pessoas.filter(p => nomes.includes(p.nome));
+        if (encontrados.length > 0) appendResultCards(encontrados);
+      } catch(e) {}
+    }
+
+  } catch (err) {
+    hideTyping();
+    isTyping = false;
+    appendMessage('agent', 'Ops! Ocorreu um erro ao conectar com a IA. Tente novamente em instantes.');
+  }
+}
+
+
+function showKeyPrompt(pendingMsg = '') {
+  const el = document.getElementById('cw-messages');
+  const div = document.createElement('div');
+  div.id = 'key-prompt-box';
+  div.style.cssText = 'background:#f9f5ff;border:1px solid #d4aaee;border-radius:12px;padding:16px;margin:8px 0;';
+  div.innerHTML = `
+    <div style="font-size:13px;font-weight:600;color:#5c2a6e;margin-bottom:8px">🔑 Chave da API do Google Gemini</div>
+    <div style="font-size:12px;color:#555;margin-bottom:10px">
+      Para usar a Conecta gratuitamente, você precisa de uma chave do Google Gemini.<br>
+      Obtenha em: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#5c2a6e">aistudio.google.com</a> (gratuito)
+    </div>
+    <div style="display:flex;gap:8px">
+      <input id="gemini-key-input" type="password" placeholder="Cole sua API Key aqui..." 
+        style="flex:1;padding:8px 12px;border:1px solid #d4aaee;border-radius:8px;font-size:12px;font-family:Inter,sans-serif;outline:none">
+      <button onclick="saveGeminiKey('${pendingMsg}')" 
+        style="background:#5c2a6e;color:white;border:none;border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;font-weight:600">
+        Salvar
+      </button>
+    </div>
+  `;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function saveGeminiKey(pendingMsg) {
+  const key = document.getElementById('gemini-key-input')?.value?.trim();
+  if (!key) return;
+  sessionStorage.setItem('gemini_api_key', key);
+  const box = document.getElementById('key-prompt-box');
+  if (box) box.remove();
+  appendMessage('agent', 'Chave salva! Pode fazer sua busca agora. 💜');
+  if (pendingMsg) {
+    setTimeout(() => {
+      document.getElementById('cw-input').value = pendingMsg;
+      sendMessage();
+    }, 400);
+  }
+}
+
+function appendMessage(role, text) {
+  const el = document.getElementById('cw-messages');
+  const isUser = role === 'user';
+  const div = document.createElement('div');
+  div.className = `cw-msg${isUser ? ' user' : ''}`;
+
+  const formatted = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+
+  div.innerHTML = `
+    <div class="cw-msg-avatar">${isUser ? '👤' : '✦'}</div>
+    <div class="cw-bubble">${formatted}</div>
+  `;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function appendResultCards(lista) {
+  const el = document.getElementById('cw-messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'cw-result-cards';
+  wrap.innerHTML = lista.map(p => `
+    <div class="cw-result-card" onclick="openModal(${pessoas.indexOf(p)});toggleConecta()">
+      <div class="cw-mini-avatar" style="background:${p.cor}">${p.iniciais}</div>
+      <div>
+        <div class="cw-mini-name">${p.nome}</div>
+        <div class="cw-mini-role">${p.cargo}</div>
+        <div class="cw-mini-tags">
+          ${p.area.map(a=>`<span class="cw-mini-tag">${a}</span>`).join('')}
+          ${p.historico.slice(0,2).map(h=>`<span class="cw-mini-tag">${h}</span>`).join('')}
+          <span class="cw-mini-tag">📍 ${p.regiao}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  el.appendChild(wrap);
+  el.scrollTop = el.scrollHeight;
+}
+
+function showTyping() {
+  const el = document.getElementById('cw-messages');
+  const div = document.createElement('div');
+  div.className = 'cw-msg';
+  div.id = 'typing-indicator';
+  div.innerHTML = `
+    <div class="cw-msg-avatar">✦</div>
+    <div class="cw-bubble typing"><span></span><span></span><span></span></div>
+  `;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+// ===== AUTH SYSTEM =====
+
+// Admin credentials (in production, use a backend)
+const ADMIN_USERS = [
+  { user: 'equipe', senha: 'iic2025' },
+  { user: 'admin', senha: 'instituto2025' }
+];
+
+// Simulated cert users DB (uses localStorage)
+function getCertUsers() {
+  try { return JSON.parse(localStorage.getItem('cert_users') || '{}'); } catch(e) { return {}; }
+}
+function saveCertUsers(users) { localStorage.setItem('cert_users', JSON.stringify(users)); }
+
+// Interests DB
+function getInterests() {
+  try { return JSON.parse(localStorage.getItem('cert_interests') || '{}'); } catch(e) { return {}; }
+}
+function saveInterests(d) { localStorage.setItem('cert_interests', JSON.stringify(d)); }
+
+// Profiles DB
+function getCertProfiles() {
+  try { return JSON.parse(localStorage.getItem('cert_profiles') || '{}'); } catch(e) { return {}; }
+}
+function saveCertProfiles(d) { localStorage.setItem('cert_profiles', JSON.stringify(d)); }
+
+let currentUser = null;
+let currentRole = null; // 'admin' | 'cert'
+
+// On load: check session
+window.addEventListener('DOMContentLoaded', () => {
+  const sess = JSON.parse(sessionStorage.getItem('crm_session') || 'null');
+  if (sess) {
+    if (sess.role === 'admin') enterAdmin();
+    else if (sess.role === 'cert') enterCert(sess.email, sess.nome);
+  }
+  // Always render iniciativas list for cert portal
+  renderCertIniciativas();
+});
+
+function switchLoginTab(tab) {
+  document.querySelectorAll('.login-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='equipe')||(i===1&&tab==='certificado')));
+  document.getElementById('form-equipe').classList.toggle('hidden', tab !== 'equipe');
+  document.getElementById('form-certificado').classList.toggle('hidden', tab !== 'certificado');
+}
+
+// ── ADMIN LOGIN ──
+function loginAdmin() {
+  const user = document.getElementById('admin-user').value.trim();
+  const pass = document.getElementById('admin-pass').value;
+  const ok = ADMIN_USERS.find(u => u.user === user && u.senha === pass);
+  const errEl = document.getElementById('admin-error');
+  if (!ok) { errEl.classList.add('show'); return; }
+  errEl.classList.remove('show');
+  sessionStorage.setItem('crm_session', JSON.stringify({ role: 'admin', user }));
+  enterAdmin();
+}
+
+function enterAdmin() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('cert-portal').classList.remove('active');
+  document.querySelector('.layout').style.display = 'flex';
+  currentRole = 'admin';
+  setTimeout(() => {
+    renderAdminInterestCounts();
+    updateNotifBadge();
+  }, 300);
+}
+
+// ── CERT LOGIN ──
+function loginCert() {
+  const email = document.getElementById('cert-email').value.trim().toLowerCase();
+  const pass = document.getElementById('cert-pass').value;
+  const users = getCertUsers();
+  const errEl = document.getElementById('cert-error');
+  if (!users[email] || users[email].senha !== pass) { errEl.classList.add('show'); return; }
+  errEl.classList.remove('show');
+  sessionStorage.setItem('crm_session', JSON.stringify({ role: 'cert', email, nome: users[email].nome }));
+  enterCert(email, users[email].nome);
+}
+
+function registerCert() {
+  const nome = document.getElementById('reg-nome').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pass = document.getElementById('reg-pass').value;
+  const errEl = document.getElementById('reg-error');
+  if (!nome || !email || !pass) { errEl.textContent = 'Preencha todos os campos.'; errEl.classList.add('show'); return; }
+  if (pass.length < 6) { errEl.textContent = 'Senha deve ter pelo menos 6 caracteres.'; errEl.classList.add('show'); return; }
+  const users = getCertUsers();
+  if (users[email]) { errEl.textContent = 'Este e-mail já está cadastrado. Faça login.'; errEl.classList.add('show'); return; }
+  users[email] = { nome, senha: pass };
+  saveCertUsers(users);
+  sessionStorage.setItem('crm_session', JSON.stringify({ role: 'cert', email, nome }));
+  errEl.classList.remove('show');
+  enterCert(email, nome);
+}
+
+function enterCert(email, nome) {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.querySelector('.layout').style.display = 'none';
+  const portal = document.getElementById('cert-portal');
+  portal.classList.add('active');
+  currentUser = { email, nome };
+  currentRole = 'cert';
+  // Set header
+  const initials = nome.split(' ').filter(p=>p).slice(0,2).map(p=>p[0].toUpperCase()).join('');
+  document.getElementById('cert-avatar').textContent = initials;
+  document.getElementById('cert-header-name').textContent = nome;
+  // Load profile
+  loadProfile(email);
+  renderCertIniciativas();
+}
+
+function showCertRegister() {
+  document.getElementById('cert-login-view').style.display = 'none';
+  document.getElementById('cert-register-view').style.display = 'block';
+}
+function showCertLogin() {
+  document.getElementById('cert-register-view').style.display = 'none';
+  document.getElementById('cert-login-view').style.display = 'block';
+}
+
+function logout() {
+  sessionStorage.removeItem('crm_session');
+  currentUser = null; currentRole = null;
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('cert-portal').classList.remove('active');
+  document.querySelector('.layout').style.display = 'none';
+}
+
+// ── CERT PORTAL NAVIGATION ──
+function setCertPanel(el, panelId) {
+  document.querySelectorAll('.cert-nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.cert-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+
+// ── INICIATIVAS (shared data) ──
+const INICIATIVAS = [
+  { id:'maes', emoji:'💜', cat:'Comunidade', title:'Mães da Periferia', desc:'Levar a coerência cardíaca para mães em situação de vulnerabilidade social, oferecendo ferramentas de autorregulação emocional e resiliência para o dia a dia.', color:'#5c2a6e' },
+  { id:'policiais', emoji:'💙', cat:'Saúde', title:'Policiais Coerentes', desc:'Programa de coerência cardíaca voltado para policiais e agentes de segurança pública, reduzindo estresse operacional e promovendo tomadas de decisão mais conscientes.', color:'#3B82F6' },
+  { id:'escolas', emoji:'🟠', cat:'Educação', title:'Coerência nas Escolas', desc:'Capacitar professores e gestores escolares em técnicas de coerência cardíaca para criar ambientes de aprendizagem mais equilibrados e empáticos.', color:'#EA580C' },
+  { id:'hospital', emoji:'💚', cat:'Saúde', title:'Coração no Hospital', desc:'Implementar práticas de coerência cardíaca em equipes hospitalares — médicos, enfermeiros e técnicos — para reduzir burnout e melhorar o cuidado ao paciente.', color:'#059669' },
+  { id:'lideranca', emoji:'🟡', cat:'Corporativo', title:'Liderança pelo Coração', desc:'Programa de desenvolvimento para líderes empresariais, integrando coerência cardíaca em cultura organizacional, gestão de pessoas e tomada de decisão.', color:'#D97706' },
+  { id:'supervisao', emoji:'💜', cat:'Comunidade', title:'Grupo de Supervisão Mentores', desc:'Espaço regular de supervisão e troca entre mentores certificados — encontros mensais para compartilhar casos, dúvidas e fortalecer a prática coletiva.', color:'#7C3AED' },
+  { id:'esporte', emoji:'🩵', cat:'Saúde', title:'Coerência no Esporte', desc:'Levar técnicas de coerência cardíaca para atletas e treinadores, melhorando foco, controle emocional e performance esportiva.', color:'#0891B2' },
+];
+
+function renderCertIniciativas() {
+  const el = document.getElementById('cert-iniciativas-list');
+  if (!el) return;
+  const interests = getInterests();
+  const myEmail = currentUser?.email || '';
+  el.innerHTML = INICIATIVAS.map(ini => {
+    const marked = myEmail && interests[myEmail]?.includes(ini.id);
+    return `
+    <div class="init-card" style="border-left:4px solid ${ini.color}">
+      <div class="init-card-header">
+        <div>
+          <div class="init-card-cat">${ini.emoji} ${ini.cat}</div>
+          <div class="init-card-title">${ini.title}</div>
+        </div>
+        <span style="font-size:20px">${ini.emoji}</span>
+      </div>
+      <div class="init-card-desc">${ini.desc}</div>
+      <button class="interest-btn ${marked?'marked':''}" onclick="toggleInterest('${ini.id}', this)">
+        ${marked ? '✅ Interesse marcado' : '🙋 Tenho interesse'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function toggleInterest(iniId, btn) {
+  if (!currentUser) return;
+  const interests = getInterests();
+  if (!interests[currentUser.email]) interests[currentUser.email] = [];
+  const idx = interests[currentUser.email].indexOf(iniId);
+  const ini = INICIATIVAS.find(i => i.id === iniId);
+
+  if (idx >= 0) {
+    // Removing interest
+    interests[currentUser.email].splice(idx, 1);
+    btn.classList.remove('marked');
+    btn.innerHTML = '🙋 Tenho interesse';
+  } else {
+    // Adding interest
+    interests[currentUser.email].push(iniId);
+    btn.classList.add('marked');
+    btn.innerHTML = '✅ Interesse marcado';
+    // Send email notification
+    sendInterestEmail(currentUser, ini);
+  }
+  saveInterests(interests);
+}
+
+async function sendInterestEmail(user, ini) {
+  // Load profile for richer email
+  const profiles = getCertProfiles();
+  const profile = profiles[user.email] || {};
+  const nome = profile.nome || user.nome || user.email;
+  const profissao = profile.profissao || 'Não informada';
+  const cidade = profile.cidade ? `${profile.cidade}${profile.estado ? ', '+profile.estado : ''}` : 'Não informada';
+  const tel = profile.tel || 'Não informado';
+  const desejo = profile.desejo || 'Não informado';
+
+  // Use EmailJS (free up to 200 emails/month) to send to crmdoinstituto@gmail.com
+  // Check if EmailJS is loaded
+  if (typeof emailjs === 'undefined') {
+    // Fallback: open mailto
+    const subject = encodeURIComponent(`[CRM IIC] Interesse em iniciativa: ${ini.title}`);
+    const body = encodeURIComponent(
+`Nova manifestação de interesse recebida pelo CRM do Instituto Inteligência do Coração.
+
+INICIATIVA: ${ini.title}
+CATEGORIA: ${ini.cat}
+
+DADOS DA PESSOA:
+Nome: ${nome}
+E-mail: ${user.email}
+Telefone: ${tel}
+Profissão: ${profissao}
+Localização: ${cidade}
+Como deseja contribuir: ${desejo}
+
+---
+Mensagem enviada automaticamente pelo CRM IIC.`
+    );
+    // Store notification for admin panel
+    storeNotification({ nome, email: user.email, tel, profissao, cidade, desejo, ini: ini.title, iniEmoji: ini.emoji, ts: new Date().toLocaleString('pt-BR') });
+    // Open mailto as fallback
+    window.open(`mailto:crmdoinstituto@gmail.com?subject=${subject}&body=${body}`, '_blank');
+    return;
+  }
+
+  try {
+    await emailjs.send('service_iic', 'template_interesse', {
+      to_email: 'crmdoinstituto@gmail.com',
+      ini_title: ini.title,
+      ini_emoji: ini.emoji,
+      nome, email: user.email, tel, profissao, cidade, desejo,
+      timestamp: new Date().toLocaleString('pt-BR')
+    });
+  } catch(e) {
+    console.error('EmailJS error:', e);
+  }
+  storeNotification({ nome, email: user.email, tel, profissao, cidade, desejo, ini: ini.title, iniEmoji: ini.emoji, ts: new Date().toLocaleString('pt-BR') });
+}
+
+function storeNotification(data) {
+  const notifs = JSON.parse(localStorage.getItem('crm_notifications') || '[]');
+  notifs.unshift(data);
+  localStorage.setItem('crm_notifications', JSON.stringify(notifs.slice(0, 100)));
+}
+
+// ── ADMIN: show interest counts on iniciativas panel ──
+function renderAdminInterestCounts() {
+  const interests = getInterests();
+  // Count per initiative
+  const counts = {};
+  Object.values(interests).forEach(list => list.forEach(id => { counts[id] = (counts[id]||0)+1; }));
+  // Find initiative cards in the admin panel and add badges
+  const adminCards = document.querySelectorAll('#panel-iniciativas .chart-card');
+  adminCards.forEach(card => {
+    const title = card.querySelector('[style*="font-size:16px"]')?.textContent?.trim();
+    if (!title) return;
+    const ini = INICIATIVAS.find(i => i.title === title);
+    if (!ini) return;
+    const count = counts[ini.id] || 0;
+    // Add or update badge
+    let badge = card.querySelector('.interest-admin-badge');
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.className = 'interest-admin-badge';
+      badge.style.cssText = 'margin-top:10px;font-size:12px;';
+      card.appendChild(badge);
+    }
+    badge.innerHTML = count > 0
+      ? `<span class="interest-count">🙋 ${count} certificado${count>1?'s':''} com interesse</span>`
+      : `<span style="font-size:12px;color:#aaa">Nenhum interesse marcado ainda</span>`;
+  });
+}
+
+// ── PROFILE ──
+function loadProfile(email) {
+  const profiles = getCertProfiles();
+  const p = profiles[email] || {};
+  ['nome','profissao','tel','cidade','estado','pais','bio','desejo'].forEach(f => {
+    const el = document.getElementById('pf-'+f);
+    if (el) el.value = p[f] || '';
+  });
+  if (!document.getElementById('pf-nome').value && currentUser?.nome) {
+    document.getElementById('pf-nome').value = currentUser.nome;
+  }
+}
+
+function saveProfile() {
+  if (!currentUser) return;
+  const profiles = getCertProfiles();
+  profiles[currentUser.email] = {
+    nome: document.getElementById('pf-nome').value,
+    profissao: document.getElementById('pf-profissao').value,
+    tel: document.getElementById('pf-tel').value,
+    cidade: document.getElementById('pf-cidade').value,
+    estado: document.getElementById('pf-estado').value,
+    pais: document.getElementById('pf-pais').value,
+    bio: document.getElementById('pf-bio').value,
+    desejo: document.getElementById('pf-desejo').value,
+  };
+  saveCertProfiles(profiles);
+  const s = document.getElementById('save-success');
+  s.classList.add('show');
+  setTimeout(() => s.classList.remove('show'), 3000);
+}
+
+// Hide layout on load until logged in
+document.addEventListener('DOMContentLoaded', () => {
+  const sess = JSON.parse(sessionStorage.getItem('crm_session') || 'null');
+  if (!sess) document.querySelector('.layout').style.display = 'none';
+});
+
+</script>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">💜</div>
+      <div class="login-logo-title">Instituto Inteligência do Coração</div>
+      <div class="login-logo-sub">Plataforma de Conexões</div>
+    </div>
+    <div class="login-tabs">
+      <div class="login-tab active" onclick="switchLoginTab('equipe')">Equipe IIC</div>
+      <div class="login-tab" onclick="switchLoginTab('certificado')">Sou Certificada(o)</div>
+    </div>
+
+    <!-- EQUIPE FORM -->
+    <div class="login-form" id="form-equipe">
+      <div>
+        <label class="login-label">Usuário</label>
+        <input class="login-input" id="admin-user" type="text" placeholder="usuario" autocomplete="username">
+      </div>
+      <div>
+        <label class="login-label">Senha</label>
+        <input class="login-input" id="admin-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')loginAdmin()">
+      </div>
+      <div class="login-error" id="admin-error">Usuário ou senha incorretos.</div>
+      <button class="login-btn" onclick="loginAdmin()">Entrar no Dashboard</button>
+    </div>
+
+    <!-- CERTIFICADO FORM (login / cadastro) -->
+    <div class="login-form hidden" id="form-certificado">
+      <div id="cert-login-view">
+        <div>
+          <label class="login-label">E-mail</label>
+          <input class="login-input" id="cert-email" type="email" placeholder="seu@email.com" autocomplete="email">
+        </div>
+        <div>
+          <label class="login-label">Senha</label>
+          <input class="login-input" id="cert-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginCert()">
+        </div>
+        <div class="login-error" id="cert-error">E-mail ou senha incorretos.</div>
+        <button class="login-btn" onclick="loginCert()">Entrar na Minha Área</button>
+        <div class="login-switch">Ainda não tem acesso? <a onclick="showCertRegister()">Cadastre-se aqui</a></div>
+      </div>
+      <div id="cert-register-view" style="display:none">
+        <div>
+          <label class="login-label">Nome completo</label>
+          <input class="login-input" id="reg-nome" type="text" placeholder="Como aparece no certificado">
+        </div>
+        <div>
+          <label class="login-label">E-mail</label>
+          <input class="login-input" id="reg-email" type="email" placeholder="seu@email.com">
+        </div>
+        <div>
+          <label class="login-label">Crie uma senha</label>
+          <input class="login-input" id="reg-pass" type="password" placeholder="Mínimo 6 caracteres">
+        </div>
+        <div class="login-error" id="reg-error"></div>
+        <button class="login-btn" onclick="registerCert()">Criar minha conta</button>
+        <div class="login-switch">Já tem conta? <a onclick="showCertLogin()">Entrar aqui</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CERTIFICADO PORTAL -->
+<div id="cert-portal">
+  <div class="cert-header">
+    <div class="cert-header-left">
+      <div class="cert-header-avatar" id="cert-avatar">?</div>
+      <div>
+        <div class="cert-header-name" id="cert-header-name">Bem-vinda(o)!</div>
+        <div class="cert-header-sub">Área do Certificado · Instituto Inteligência do Coração</div>
+      </div>
+    </div>
+    <button class="cert-logout" onclick="logout()">Sair</button>
+  </div>
+
+  <div class="cert-content">
+    <div class="cert-nav">
+      <div class="cert-nav-item active" onclick="setCertPanel(this,'cert-iniciativas')">🌱 Iniciativas</div>
+      <div class="cert-nav-item" onclick="setCertPanel(this,'cert-perfil')">👤 Meu Perfil</div>
+    </div>
+
+    <!-- INICIATIVAS -->
+    <div class="cert-panel active" id="cert-iniciativas">
+      <h2 style="font-family:'Fraunces',serif;font-size:20px;color:#5c2a6e;margin-bottom:6px">Iniciativas em andamento</h2>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:20px">Conheça as iniciativas do Instituto e marque interesse para participar. A equipe entrará em contato!</p>
+      <div id="cert-iniciativas-list"></div>
+    </div>
+
+    <!-- MEU PERFIL -->
+    <div class="cert-panel" id="cert-perfil">
+      <h2 style="font-family:'Fraunces',serif;font-size:20px;color:#5c2a6e;margin-bottom:6px">Meu Perfil</h2>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:20px">Mantenha seus dados atualizados para que a equipe possa te conectar com as iniciativas certas.</p>
+      <div class="profile-card">
+        <div class="profile-grid">
+          <div class="profile-field">
+            <label>Nome completo</label>
+            <input id="pf-nome" type="text" placeholder="Seu nome completo">
+          </div>
+          <div class="profile-field">
+            <label>Profissão / Área de atuação</label>
+            <input id="pf-profissao" type="text" placeholder="Ex: Psicóloga, Coach, Médica...">
+          </div>
+          <div class="profile-field">
+            <label>Telefone com DDD</label>
+            <input id="pf-tel" type="text" placeholder="(11) 99999-9999">
+          </div>
+          <div class="profile-field">
+            <label>Cidade</label>
+            <input id="pf-cidade" type="text" placeholder="Sua cidade">
+          </div>
+          <div class="profile-field">
+            <label>Estado (sigla)</label>
+            <input id="pf-estado" type="text" placeholder="Ex: SP, RJ, MG">
+          </div>
+          <div class="profile-field">
+            <label>País</label>
+            <input id="pf-pais" type="text" placeholder="Brasil">
+          </div>
+          <div class="profile-field full">
+            <label>Depoimento sobre a certificação</label>
+            <textarea id="pf-bio" rows="3" placeholder="Como a certificação impactou sua vida e prática..."></textarea>
+          </div>
+          <div class="profile-field full">
+            <label>Como deseja continuar contribuindo com o Instituto?</label>
+            <textarea id="pf-desejo" rows="3" placeholder="Compartilhe seus interesses e disponibilidade..."></textarea>
+          </div>
+        </div>
+        <button class="save-btn" onclick="saveProfile()">💾 Salvar alterações</button>
+        <div class="save-success" id="save-success">✅ Perfil atualizado com sucesso!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
