@@ -1703,6 +1703,35 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!sess) document.querySelector('.layout').style.display = 'none';
 });
 
+
+// ===== MOBILE MENU =====
+function toggleMobileMenu() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('mobile-overlay');
+  if (!sidebar || !overlay) return;
+  sidebar.classList.toggle('mobile-open');
+  overlay.classList.toggle('active');
+  document.body.style.overflow = sidebar.classList.contains('mobile-open') ? 'hidden' : '';
+}
+
+function closeMobileMenu() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('mobile-overlay');
+  if (!sidebar || !overlay) return;
+  sidebar.classList.remove('mobile-open');
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Close menu when nav item is tapped on mobile
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.nav-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      if (window.innerWidth <= 768) closeMobileMenu();
+    });
+  });
+});
+
 </script>
 
 <!-- LOGIN SCREEN -->
