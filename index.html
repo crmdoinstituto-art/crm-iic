@@ -114,6 +114,104 @@
   .tl-item { display: flex; gap: 12px; font-size: 13px; }
   .tl-dot { width: 8px; height: 8px; background: var(--verde); border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
   .tl-year { font-weight: 600; color: var(--verde); }
+
+/* ===== RESPONSIVE MOBILE ===== */
+@media (max-width: 768px) {
+
+  /* Layout */
+  .layout { flex-direction: column; }
+
+  /* Hide sidebar, show mobile nav */
+  .sidebar { display: none; position: fixed; inset: 0; z-index: 500; width: 100%; padding: 0; overflow-y: auto; }
+  .sidebar.mobile-open { display: flex; }
+  .logo { font-size: 14px; padding: 20px 20px 16px; }
+  .nav-item { padding: 14px 24px; font-size: 15px; }
+
+  /* Mobile topbar */
+  .topbar { padding: 12px 16px; position: sticky; top: 0; z-index: 400; }
+  .topbar h1 { font-size: 16px; }
+  .topbar-actions { gap: 6px; }
+  .btn { padding: 6px 10px; font-size: 12px; }
+
+  /* Mobile menu button */
+  .mobile-menu-btn {
+    display: flex !important;
+    align-items: center; justify-content: center;
+    width: 36px; height: 36px;
+    background: #5c2a6e; color: white;
+    border: none; border-radius: 8px;
+    font-size: 18px; cursor: pointer;
+    margin-right: 10px; flex-shrink: 0;
+  }
+
+  /* Content */
+  .content { padding: 16px; }
+
+  /* Stats grid */
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .stat-card { padding: 12px 14px; }
+  .stat-value { font-size: 22px; }
+  .stat-label { font-size: 11px; }
+
+  /* Charts */
+  .charts-row { grid-template-columns: 1fr !important; gap: 12px; margin-bottom: 12px; }
+  .chart-card { padding: 14px; }
+  .chart-title { font-size: 13px; margin-bottom: 10px; }
+  .bar-label { width: 100px !important; font-size: 11px !important; }
+
+  /* Search layout */
+  .search-layout { grid-template-columns: 1fr; gap: 14px; }
+  .filter-panel { position: static; }
+
+  /* Person cards */
+  .person-card { flex-wrap: wrap; padding: 12px; gap: 10px; }
+  .person-meta { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .person-location { font-size: 12px; }
+
+  /* Tabs */
+  .tabs { width: 100%; overflow-x: auto; }
+  .tab { padding: 7px 12px; font-size: 12px; white-space: nowrap; }
+
+  /* Modal */
+  .modal { width: 95vw; padding: 20px; max-height: 90vh; }
+  .modal-name { font-size: 18px; }
+
+  /* Conecta bubble */
+  #conecta-bubble { bottom: 16px; right: 16px; padding: 10px 14px; }
+  .bubble-label { font-size: 13px; }
+
+  /* Conecta window */
+  #conecta-window { width: 95vw; right: 2.5vw; bottom: 70px; height: 70vh; }
+
+  /* Iniciativas grid */
+  #panel-iniciativas > div:last-child { grid-template-columns: 1fr !important; }
+
+  /* Source cards */
+  .source-cards { grid-template-columns: 1fr 1fr; }
+
+  /* Certificado portal */
+  .cert-content { padding: 16px; }
+  .cert-header { padding: 12px 16px; }
+  .cert-nav { width: 100%; overflow-x: auto; }
+  .profile-grid { grid-template-columns: 1fr; }
+  .profile-field.full { grid-column: span 1; }
+
+  /* Login card */
+  .login-card { padding: 28px 20px; }
+
+  /* Overlay for mobile menu */
+  .mobile-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 499;
+  }
+  .mobile-overlay.active { display: block; }
+}
+
+/* Hide mobile button on desktop */
+.mobile-menu-btn { display: none; }
+
 </style>
 
 <style>
@@ -265,9 +363,13 @@
 <!-- LOGIN SCREEN -->
 
 
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
 <div class="layout">
   <aside class="sidebar">
-    <div class="logo">Instituto Inteligência do Coração<span>Plataforma de Conexões</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:0 24px 24px;border-bottom:1px solid rgba(255,255,255,0.15);margin-bottom:16px">
+      <div style="font-family:'Fraunces',serif;color:white;font-size:15px;font-weight:600;line-height:1.3">Instituto Inteligência<br>do Coração<span style="font-size:11px;font-family:'Inter',sans-serif;font-weight:300;display:block;opacity:0.7;margin-top:2px">Plataforma de Conexões</span></div>
+      <button onclick="closeMobileMenu()" style="background:rgba(255,255,255,0.15);border:none;color:white;font-size:20px;cursor:pointer;border-radius:6px;width:32px;height:32px;display:flex;align-items:center;justify-content:center" class="mobile-close-btn">×</button>
+    </div>
     <nav>
       <div class="nav-item active" onclick="setNav(this,'dash')"><span class="nav-icon">📊</span> Dashboard</div>
       <div class="nav-item" onclick="setNav(this,'busca')"><span class="nav-icon">🔍</span> Busca Avançada</div>
@@ -278,6 +380,7 @@
   </aside>
   <main class="main">
     <div class="topbar">
+      <button class="mobile-menu-btn" onclick="toggleMobileMenu()" id="mobile-menu-btn">☰</button>
       <h1 id="page-title">Visão Geral</h1>
       <div class="topbar-actions">
         <button class="btn btn-outline">⬇ Exportar</button>
